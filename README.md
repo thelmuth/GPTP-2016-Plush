@@ -55,7 +55,10 @@ Note that the instructions are given in terms of Linux commands. If you are usin
 - Please put all your `tex`, `bib`, and `eps` files at one level in the directory with a name that is your primary author's or group's name.
 - Avoid custom extensions.
 - Do not use additional packages without permission.
-- Use `\citep{}` for all citations and include all cited works in your own `bib` file.
+- Use `\citep{}` for all citations of papers, use `\cite{}` for citations-as-a-noun. So for example
+  > "While `\cite{bill:2018}` mentions this amazing thing, other authors do not talk about it often `\citep{brian:2019}`."
+  
+  And include all cited works in your own `bib` file!
 - You may use the `gp-bibliography.bib` as a source for many GP papers, but you will need to add additional citations to your own `chapter.bib` file.
 - For figures and table numbers, include a `\label{}` in the tags, and then refer to that figure or table with a `\ref{}`. This is explained in the `chapter.tex` example file, and is not complicated. Just do what it has already shown you how to do.
 - Use `\index{}` for indexing, as explained in `chapter.tex`.

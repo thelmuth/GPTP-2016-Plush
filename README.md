@@ -17,7 +17,7 @@ Note that the instructions are given in terms of Linux commands. If you are usin
   - `chapter.tex`: an example chapter with tips about new package for book. _Replace the contents of this file with the contents of your chapter, keeping what you need for formatting._ That is, change the words and pictures, but _type_ the words and pictures in the way this example chapter indicates.
 
 
-3) As you work, rename files you edit:
+3. As you work, rename files you edit:
   - `chapter.tex` should be renamed to the lead author's last name in all lower case. For example, a paper by John Smith and Donald Duck should be renamed `smith.tex`.
   - `chapter.bib` should contain all citations you use in your paper. You may want to download a copy of the [most recent `gp-bibliography.bib` file from Bill Langdon's servers](http://www.cs.bham.ac.uk/~wbl/biblio/gp-bibliography.html) as a reference, but please copy any citations from that file into your `chapter.bib` file. Rename `chapter.bib` to `smith.bib`, as with the `.tex` file.
   - within `chapter.tex`, make sure to change the last lines of the document from:

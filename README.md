@@ -37,7 +37,6 @@ Note that the instructions are given in terms of Linux commands. If you are usin
 4. Do not use additional packages without contacting the editors and asking beforehand. The `usepackage` lines in `gpbook.tex` should provide everything you need, and will not crash the rendering of the entire book. Adding extra packages _may_ crash the rendering of the entire book, and is to be avoided. If your document crashes the rendering of the entire book, we will ask your colleagues to fix it for you.
 
 5. To create a pdf of the finished chapter, use the following commands:
-
 ```text
 latex gpbook
 bibtex gpbook
@@ -46,7 +45,7 @@ latex gpbook
 dvips gpbook -o gpbook.ps
 ps2pdf -dEmbedAllFonts=true gpbook.ps gpbook.pdf
 ```
-  This pdf will include the bibliography but not the index. Make sure you provide the necessary information for both the bibliography and index! That is, be sure to use `\index{}` and `\citep{}` within your chapter!
+This pdf will include the bibliography but not the index. Make sure you provide the necessary information for both the bibliography and index! That is, be sure to use `\index{}` and `\citep{}` within your chapter!
 
 5. All figures must be in EPS format. Do not use pixel-based formats or unusual fonts. Include all files in your chapter folder.
 

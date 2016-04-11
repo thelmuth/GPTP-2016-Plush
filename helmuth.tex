@@ -61,7 +61,6 @@ X-Word Lines               &   8 &  0 \\
 Count Odds                 &   8 &  5 \\
 \noalign{\smallskip}\hline\noalign{\smallskip}
 \end{tabular}
-
 \end{table}
 
 \section{Uniform Genetic Operators}
@@ -74,6 +73,41 @@ Is uniform mutation most important?
 \subsection{Experiment and Results}
 
 
+
+\begin{table}
+\centering
+\caption{Genetic operator combinations experimented with here. ``Alt.'' = alternation, ``Uni. Mut.'' = uniform mutation, ``Close Mut.'' = close mutation, and ``Alt. + Uni. Mut.'' = alternation followed by uniform mutation.}
+\label{genetic-opeartor-combinations}
+\begin{tabular}{ll llll}
+\hline\noalign{\smallskip}
+Designation & Description & Alt. & Uni. Mut. & Close Mut. & Alt. + Uni. Mut. \\
+\noalign{\smallskip}\svhline\noalign{\smallskip}
+REG & Regular Operators &  0.2 &  0.2 &  0.1 &  0.5  \\
+NCM & No Close Mut.  &  0.22 &  0.22 &  0 &  0.56  \\
+NUM & No Uni. Mut. &  0.9 &  0 &  0.1 &  0  \\
+NA  & No Alt. &  0 &  0.9 &  0.1 &  0  \\
+OUM & Onlt Uni. Mut. &  0 &  1.0 &  0 &  0  \\
+\noalign{\smallskip}\hline\noalign{\smallskip}
+\end{tabular}
+\end{table}
+
+
+\begin{table}
+\centering
+\caption{Genetic operators experiment.}
+\label{genetic-opeartor-results}
+\begin{tabular}{l r r r r r}
+\hline\noalign{\smallskip}
+Problem                    & REG & NA & NCM & NUM & OUM \\
+\noalign{\smallskip}\svhline\noalign{\smallskip}
+Replace Space With Newline &  51 & 55 &  50 &  24 &   x \\
+Syllables                  &  18 &  9 &  20 &   7 &   x \\
+Negative To Zero           &  45 & 46 &  41 &  11 &   x \\
+X-Word Lines               &   8 &  1 &  12 &   0 &   x \\
+Count Odds                 &   8 &  6 &   5 &   0 &   x \\
+\noalign{\smallskip}\hline\noalign{\smallskip}
+\end{tabular}
+\end{table}
 
 
 

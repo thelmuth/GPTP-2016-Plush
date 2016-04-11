@@ -31,7 +31,8 @@ Intro goes here. The overall story is that linear representations allows us to u
 \section{Brief History of Push}
 
 
-\section{Related Representations}
+
+\section{Plush}
 
 
 
@@ -43,6 +44,26 @@ Here we talk about automatic parentheses.
 \subsection{Experiment and Results}
 
 
+\begin{table}
+\centering
+\caption{Number of successes, out of 100 runs, using either Plush (which automatically adds parentheses after specific instructions) and a version of Plush in which automatic parenthesizing was turned off. In the latter, instructions were inserted into the instruction set that simply opened parentheses. THIS CAPTION IS NOT VERY GOOD.}
+\label{no-auto-parens-experiment}       % Give a unique label
+%
+% Follow this input for your own table layout
+%
+\begin{tabular}{l r r}
+\hline\noalign{\smallskip}
+Problem                    & Plush & ~No Auto-Parens \\
+\noalign{\smallskip}\svhline\noalign{\smallskip}
+Replace Space With Newline &  51 & 51 \\
+Negative To Zero           &  45 & 34 \\
+X-Word Lines               &   8 &  0 \\
+Count Odds                 &   8 &  5 \\
+\noalign{\smallskip}\hline\noalign{\smallskip}
+\end{tabular}
+
+\end{table}
+
 \section{Uniform Genetic Operators}
 
 Here we talk about uniform genetic operators, and how tree-based operators do bad things. Heavy citation of the ULTRA paper \citep{Spector:2013:GPTP}.
@@ -52,6 +73,11 @@ Is uniform mutation most important?
 
 \subsection{Experiment and Results}
 
+
+
+
+
+\section{Related Representations}
 
 
 

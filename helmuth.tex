@@ -37,7 +37,7 @@ Intro goes here. The overall story is that linear representations allows us to u
 
 \subsection{From Tom's Dissertation}
 
-In a change from previous versions of PushGP, the most recent version of Clojush does not evolve Push programs directly, but instead uses a separate linear genome representation that we translate into Push programs prior to execution. The new \textit{Plush}\footnote{\textbf{L}inear \textbf{Push}} \textit{genomes} are linear sequences of instructions that may have one or more epigenetic markers attached to each instruction. The epigenetic markers affect the translation of the Plush genomes into Push programs. For example, the \textit{silent} marker is a boolean that tells whether a particular instruction will appear in the translated program. 
+In a change from previous versions of PushGP, the most recent version of Clojush does not evolve Push programs directly, but instead uses a separate linear genome representation that we translate into Push programs prior to execution. The new \textit{Plush}\footnote{\textbf{L}inear \textbf{Push}} \textit{genomes} are linear sequences of instructions that may have one or more epigenetic markers attached to each instruction. The epigenetic markers affect the translation of the Plush genomes into Push programs. For example, the \textit{silent} marker is a boolean that tells whether a particular instruction will appear in the translated program.
 
 When evolving Push programs directly, we often found that parenthesis-delimited code blocks would rarely evolve in conjunction with instructions that made use of them. One of the motivations for moving to linear Plush genomes was that we could require that Push instructions that make use of code blocks be followed by them. With this change, every instruction that takes one or more argument from the \textit{exec} stack implicitly opens one or more code blocks. Additionally, each instruction has a \textit{close} epigenetic marker that tells the number of code blocks to end after that instruction. Thus, during translation from Plush genome to Push program, an open parenthesis is placed after each instruction that requires a code block, and a matching closing parenthesis is placed after a later instruction with a non-zero close marker. Note that these code blocks can create hierarchically nested Push programs. For example, if a new code block B is opened after the start of code block A, the next close marker will close block B, not block A. If not enough close markers occur by the end of a program to match all opened code blocks, all opened blocks are simply closed.
 
@@ -354,7 +354,13 @@ Here we talk about automatic parentheses.
 
 \begin{table}
 \centering
-\caption{Number of successes, out of 100 runs, using either Plush (which automatically adds parentheses after specific instructions) and a version of Plush in which automatic parenthesizing was turned off. In the latter, instructions were inserted into the instruction set that simply opened parentheses. THIS CAPTION IS NOT VERY GOOD.}
+\caption{
+Number of succesful runs out of 100.
+In Plush, opening parenthesis are added after specific instructions.
+In the other, instructions are inserted into the instruction set that
+simply opened parentheses
+     ??I dont understand exactly how this stops adding parenthesis??
+}
 \label{no-auto-parens-experiment}       % Give a unique label
 %
 % Follow this input for your own table layout

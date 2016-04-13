@@ -36,6 +36,307 @@ Intro goes here. The overall story is that linear representations allows us to u
 
 
 
+
+\subsection{Orientation topic from Discourse}
+
+There have been numerous requests/suggestions that we have a write-up here (and elsewhere) of Plush Genomes. This is a (wikified) account of what they are, what they're for, and more or less how they work.
+
+Plush genomes are linear sequences of maps, each of which contain (at a minimum):
+
+* An `:instruction`
+* A `:close` count
+
+For example, here is a very simple Plush genome that encodes the Push program `(1 2 integer\_add)` :
+
+```clojure
+[ {:instruction 1, :close 0}
+  {:instruction 2, :close 1}
+  {:instruction 'integer\_add, :close 0} ]
+```
+
+Plush gene maps can optionally contain other values, as relevant/desired/interested. One in current use at this writing is the epigenetic marker `:silent`, which is used to indicate that the containing gene should be ignored when translating from the genome to the program.
+
+\subsubsection{ Translation}
+
+The process of translating a linear Plush genome into a syntactically valid Push program (which is a tree) is for the most part a \_depth-first\_ construction of that program tree. Simple programs without any parenthesized blocks are constructed, one gene at a time, by appending the `:instruction` item to the program. As a genome is translated, some additional state should be managed in a "block stack", which will keep track of parenthesized blocks "promised" to genes translated earlier in the process.
+
+\subsubsection{ Opening blocks}
+
+Because the parenthesized blocks in the Push language are (for the most part) only ever used by instructions that take their arguments from the `:exec` stack, the Plush translation process explicitly \_adds\_ syntactically correct blocks after each of those instructions. In the Clojush codebase, these are:
+
+```clojure
+    {code\_quote 1,
+     environment\_new 1,
+     exec\_do*count 1,
+     exec\_do*range 1,
+     exec\_do*times 1,
+     exec\_do*vector\_boolean 1,
+     exec\_do*vector\_float 1,
+     exec\_do*vector\_integer 1,
+     exec\_do*vector\_string 1,
+     exec\_do*while 1,
+     exec\_dup 1,
+     exec\_eq 0,
+     exec\_if 2,
+     exec\_k 2,
+     exec\_pop 1,
+     exec\_rot 3,
+     exec\_s 3,
+     exec\_shove 1,
+     exec\_string\_iterate 1,
+     exec\_swap 2,
+     exec\_when 1,
+     exec\_while 1,
+     exec\_y 1,
+     exec\_yank 0,
+     exec\_yankdup 0,
+     noop\_delete\_prev\_paren\_pair 0,
+     noop\_open\_paren 1,
+     print\_exec 1,
+     return\_fromexec 1,
+     zip\_append\_child\_fromexec 1,
+     zip\_fromexec 1,
+     zip\_insert\_child\_fromexec 1,
+     zip\_insert\_left\_fromexec 1,
+     zip\_insert\_right\_fromexec 1,
+     zip\_replace\_fromexec 1}
+```
+
+When one of these instructions is encoded by a Plush gene, a new parenthesized branch should be begun in the unfolding Push program, and zero or more \_future\_ parenthesized blocks should also be set up using a "block stack".
+
+When a translated instruction "wants" one block, subsequent translated tokens will be added to the Push program within that block until it is explicitly \_closed\_ (see below). A token should be pushed to the "block stack" to indicate that a block is open.
+
+When a translated instruction "wants" more than one block, subsequent tokens will be added to the Push program within the \_first\_ block until it is explicitly closed, and then immediately a second block will be opened again, and so on until the "block stack" has been emptied". When an instruction wanting more than one block is translated, tokens should be pushed onto the "block stack" that indicate that one (the last) should be closed, and then more tokens for each of the additional blocks to close-and-reopen new blocks.
+
+Whenever any gene is translated in which the instruction "wants" one or more blocks to open, a new block is opened \_immediately\_ in the resulting Push program.
+
+There is a special instruction token, `noop\_open\_paren`, which immediately opens a new branch but writes no item to the Push program.
+
+No parenthesized branch is \_ever\_ opened in the Push program unless
+
+1. the encoded instruction explicitly appears on the "wants list" as wanting one or more branches
+2. the instruction is `noop\_open\_paren`
+
+\subsubsection{ Closing blocks}
+
+As each gene is translated from Plush into Push code, the `:close` value also has an important effect on the resulting Push program's structure.
+
+For every gene that is translated from Plush to Push: \_after\_ the `:instruction` token has been added to growing Push program, and \_after\_ a single new branch has been opened (if the instruction "wants" one, and \_after\_ the suitable number of items have been pushed to the "block stack", the `:close` gene is applied to the growing Push program.
+
+If the `:close` gene's value is 0, there is no effect. The next Plush gene will add its token(s) immediately following the preceding instruction's result.
+
+If the `:close` gene is a positive integer, and there are \_no items\_ on the "block stack", there is no effect. Again, the next Plush gene will add its token(s) immediately following the preceding instruction's result.
+
+If the `:close` gene is a positive integer and there are one or more items on the "block stack", some of the currently open blocks will be closed. The top (last-added) item on the "block stack" is popped, and
+
+- If what is popped from the "block stack" is a `close` token, then the current block is closed. Regardless of the way the algorithm has been implemented, this means that the next Push item added to the program will be appended not inside the closed block, but as its (following) sibling.
+- If what is popped is a `close-and-open` token, then the current block is closed, and a new one is immediately opened. This means that the next Push item added to the program will be not be appended inside the closed block, but as its "cousin".
+
+If the `:close` gene is greater than one, and there are sufficient items on the "block stack", blocks are closed (and potentially immediately re-opened) as indicated by the `:close` gene value.
+
+If the `:close` gene value is larger than the size of the "block stack", then the stack is exhausted and some blocks in the Push program may be left open (for the time being).
+
+Finally, if the Plush genome is fully translated into Push code and one or more items remain on the "block stack", those items should be closed by the same process: that is, `close-and-open` tokens should produce new (empty) blocks at the end of the translated program.
+
+\subsubsection{ Special genes}
+
+Two special genes and an epigenetic marker also affect the translation process:
+
+- A Plush gene with a `:silent` item should not affect the growing Push program, or the translation process (either through adding things to the "block stack" or closing blocks)
+- the  `noop\_open\_paren`  instruction immediately opens a new block in the Push program and pushes a new `close` token onto the "block stack", but does not add any other tokens
+- the  `noop\_delete\_prev\_paren\_pair`  instruction restructures the Push program \_without affecting the translation state in any other way\_: it searches through the Push program until it finds the last block closed in translation (details depend on implementation), and "lifts" the contents of that block to the level of its parent in the program. For example, if the Push program is `[1 2 (3 4) 5 (6 *)]` (with the asterisk indicating where the next item would be added, inside a currently unclosed block), the result of applying this transformation would be `[1 2 3 4 5 (6 *)]`
+
+\subsubsection{ Implementation}
+
+There are several ways this algorithm can be implemented. In the Clojush system, this translation algorithm is implemented using an intermediate linear structure, which is subsequently parsed as a Push program tree when complete. The bulk of the relevant logic in Clojush is in [`src/clojush/translate.clj`](https://github.com/lspector/Clojush/blob/master/src/clojush/translate.clj). Below is the docstring for the function `traslate-plush-genome-to-push-program`, which describes most of what's happening.
+
+> Takes as input an individual (or map) containing a Plush genome (:genome) and translates it to the correct Push program with balanced parens. The linear Plush genome is made up of a list of instruction maps, each including an :instruction key as well as other epigenetic marker keys. As the linear Plush genome is traversed, each instruction that requires parens will push :close and/or :close-open onto the paren-stack, and will also put an open paren after it in the program. For example, an instruction that requires 3 paren groupings will push :close, then :close-open, then :close-open. When a positive number is encountered in the :close key of the instruction map, it is set to num-parens-here during the next recur. This indicates the number of parens to put here, if need is indicated on the paren-stack. If the top item of the paren-stack is :close, a close paren will be inserted. If the top item is :close-open, a close paren followed by an open paren will be inserted. If the end of the program is reached but parens are still needed (as indicated by the paren-stack), parens are added until the paren-stack is empty.
+
+> Instruction maps that have :silence set to true will be ignored entirely.
+
+\subsubsection{ Opening parentheses}
+
+In previous versions of Push, Push programs themselves were used as the genomes on which genetic operators operated. @thelmuth and @lspector noticed that evolved programs rarely made use of non-trivial parenthesized code blocks when using `:exec` stack instructions such as `exec\_if` and `exec\_do*times`, which make use of a block of code. This makes it difficult to evolve interesting/complex behaviors.
+
+Thus the current translation process inserts open parens after any instructions that take arguments from the `:exec` stack. These instructions are specified in the function `lookup-instruction-paren-groups` in `src/clojush/instructions/common.clj`. Some instructions, such as `:exec\_if`, require more than one argument from the `:exec` stack, and therefore open more than one parenthesized block. The instruction `noop\_open\_paren` opens a parenthesized block but performs no operation; conversely, `noop\_delete\_prev\_paren\_pair` removes the previously defined parenthesis pair. These two instructions are not necessary if you only want parentheses to be semantically meaningful, but could be useful in other settings.
+
+The number of parenthesized blocks required by a particular instruction is included in its metadata with the key `:parentheses`. Thus, one could look at the metadata associated with each instruction to get how many code blocks each instruction requires, with an instruction implicitly requiring zero if it has no metadata.
+
+\subsubsection{ Closing parentheses}
+
+Inserting open parentheses at the start of "expected" code blocks is pretty straightforward. The trick is figuring out when to close them, which is the job of the `:close` count. That count is an integer that is under evolutionary control, i.e., it can be mutated up and down over time. When a tuple is processed, if that number is positive and there are open parentheses waiting to be closed, then the specified number of open parentheses are closed. This allows the evolutionary process to explore where blocks should end, and we have at least one example where a change to this `:close` count allowed for the discovery of a solution.
+
+Any "extra" `:close` counts are ignored, e.g., if the `:close` count is 3, but there are only two open parentheses at this point in the translation, those two will be closed, and the "extra" count will be "thrown away". If the full genome is traversed and there are still open parentheses, the necessary set of close parentheses will be added to create a syntactically legal program.
+
+\subsubsection{ Examples}
+
+Here is a Plush genome for a trivial Push program, showing how a Plush genome is constructed from a list of maps, each with an `instruction` and a `close` entry, and some with other entries (like `:silent`):
+
+```clojure
+(def genome
+  '({:instruction exec\_do*times :close 0}
+     {:instruction 8 :close 0}
+     {:instruction 11 :close 3}
+     {:instruction integer\_add :close 0 :silent true}
+     {:instruction exec\_if :close 1}
+     {:instruction 17 :close 0}
+     {:instruction noop\_open\_paren :close 0}
+     {:instruction false :close 0}
+     {:instruction code\_quote :close 0}
+     {:instruction float\_mult :close 2}
+     {:instruction exec\_rot :close 0}
+     {:instruction 34.44 :close 0}))
+```
+
+And here is a step-by-step working out of how this is translated into a Push program using the Clojush algorithm, showing the contents of the program as they are added, and how the `:paren` "block stack" as it is manipulated in each step:
+
+```text
+PROGRAM: []
+PAREN: ()
+NUM PARENS STILL NEEDED AT THIS LOCATION: 0
+
+LAST INSTRUCTION: {:instruction exec\_do*times, :close 0}
+PROGRAM: [exec\_do*times :open]
+PAREN: (:close)
+NUM PARENS STILL NEEDED AT THIS LOCATION: 0
+
+LAST INSTRUCTION: {:instruction 8, :close 0}
+PROGRAM: [exec\_do*times :open 8]
+PAREN: (:close)
+NUM PARENS STILL NEEDED AT THIS LOCATION: 0
+
+LAST INSTRUCTION: {:instruction 11, :close 3}
+PROGRAM: [exec\_do*times :open 8 11]
+PAREN: (:close)
+NUM PARENS STILL NEEDED AT THIS LOCATION: 3
+
+LAST INSTRUCTION: {:instruction integer\_add, :close 0, :silent true}
+PROGRAM: [exec\_do*times :open 8 11 :close]
+PAREN: ()
+NUM PARENS STILL NEEDED AT THIS LOCATION: 2
+
+LAST INSTRUCTION: {:instruction integer\_add, :close 0, :silent true}
+PROGRAM: [exec\_do*times :open 8 11 :close]
+PAREN: ()
+NUM PARENS STILL NEEDED AT THIS LOCATION: 1
+
+LAST INSTRUCTION: {:instruction integer\_add, :close 0, :silent true}
+PROGRAM: [exec\_do*times :open 8 11 :close]
+PAREN: ()
+NUM PARENS STILL NEEDED AT THIS LOCATION: 0
+
+LAST INSTRUCTION: {:instruction integer\_add, :close 0, :silent true}
+PROGRAM: [exec\_do*times :open 8 11 :close]
+PAREN: ()
+NUM PARENS STILL NEEDED AT THIS LOCATION: 0
+
+LAST INSTRUCTION: {:instruction exec\_if, :close 1}
+PROGRAM: [exec\_do*times :open 8 11 :close exec\_if :open]
+PAREN: (:close-open :close)
+NUM PARENS STILL NEEDED AT THIS LOCATION: 1
+
+LAST INSTRUCTION: {:instruction 17, :close 0}
+PROGRAM: [exec\_do*times :open 8 11 :close exec\_if :open :close :open]
+PAREN: (:close)
+NUM PARENS STILL NEEDED AT THIS LOCATION: 0
+
+LAST INSTRUCTION: {:instruction 17, :close 0}
+PROGRAM: [exec\_do*times :open 8 11 :close exec\_if :open :close :open 17]
+PAREN: (:close)
+NUM PARENS STILL NEEDED AT THIS LOCATION: 0
+
+LAST INSTRUCTION: {:instruction noop\_open\_paren, :close 0}
+PROGRAM: [exec\_do*times :open 8 11 :close exec\_if :open :close :open 17 :open]
+PAREN: (:close :close)
+NUM PARENS STILL NEEDED AT THIS LOCATION: 0
+
+LAST INSTRUCTION: {:instruction false, :close 0}
+PROGRAM: [exec\_do*times :open 8 11 :close exec\_if :open :close :open 17 :open false]
+PAREN: (:close :close)
+NUM PARENS STILL NEEDED AT THIS LOCATION: 0
+
+LAST INSTRUCTION: {:instruction code\_quote, :close 0}
+PROGRAM: [exec\_do*times :open 8 11 :close exec\_if :open :close :open 17 :open false code\_quote :open]
+PAREN: (:close :close :close)
+NUM PARENS STILL NEEDED AT THIS LOCATION: 0
+
+LAST INSTRUCTION: {:instruction float\_mult, :close 2}
+PROGRAM: [exec\_do*times :open 8 11 :close exec\_if :open :close :open 17 :open false code\_quote :open float\_mult]
+PAREN: (:close :close :close)
+NUM PARENS STILL NEEDED AT THIS LOCATION: 2
+
+LAST INSTRUCTION: {:instruction exec\_rot, :close 0}
+PROGRAM: [exec\_do*times :open 8 11 :close exec\_if :open :close :open 17 :open false code\_quote :open float\_mult :close]
+PAREN: (:close :close)
+NUM PARENS STILL NEEDED AT THIS LOCATION: 1
+
+LAST INSTRUCTION: {:instruction exec\_rot, :close 0}
+PROGRAM: [exec\_do*times :open 8 11 :close exec\_if :open :close :open 17 :open false code\_quote :open float\_mult :close :close]
+PAREN: (:close)
+NUM PARENS STILL NEEDED AT THIS LOCATION: 0
+
+LAST INSTRUCTION: {:instruction exec\_rot, :close 0}
+PROGRAM: [exec\_do*times :open 8 11 :close exec\_if :open :close :open 17 :open false code\_quote :open float\_mult :close :close exec\_rot :open]
+PAREN: (:close-open :close-open :close :close)
+NUM PARENS STILL NEEDED AT THIS LOCATION: 0
+
+LAST INSTRUCTION: {:instruction 34.44, :close 0}
+PROGRAM: [exec\_do*times :open 8 11 :close exec\_if :open :close :open 17 :open false code\_quote :open float\_mult :close :close exec\_rot :open 34.44]
+PAREN: (:close-open :close-open :close :close)
+NUM PARENS STILL NEEDED AT THIS LOCATION: 0
+
+LAST INSTRUCTION: null
+PROGRAM: [exec\_do*times :open 8 11 :close exec\_if :open :close :open 17 :open false code\_quote :open float\_mult :close :close exec\_rot :open 34.44]
+PAREN: (:close-open :close-open :close :close)
+NUM PARENS STILL NEEDED AT THIS LOCATION: 4
+
+LAST INSTRUCTION: null
+PROGRAM: [exec\_do*times :open 8 11 :close exec\_if :open :close :open 17 :open false code\_quote :open float\_mult :close :close exec\_rot :open 34.44 :close :open]
+PAREN: (:close-open :close :close)
+NUM PARENS STILL NEEDED AT THIS LOCATION: 3
+
+LAST INSTRUCTION: null
+PROGRAM: [exec\_do*times :open 8 11 :close exec\_if :open :close :open 17 :open false code\_quote :open float\_mult :close :close exec\_rot :open 34.44 :close :open :close :open]
+PAREN: (:close :close)
+NUM PARENS STILL NEEDED AT THIS LOCATION: 2
+
+LAST INSTRUCTION: null
+PROGRAM: [exec\_do*times :open 8 11 :close exec\_if :open :close :open 17 :open false code\_quote :open float\_mult :close :close exec\_rot :open 34.44 :close :open :close :open :close]
+PAREN: (:close)
+NUM PARENS STILL NEEDED AT THIS LOCATION: 1
+
+LAST INSTRUCTION: null
+PROGRAM: [exec\_do*times :open 8 11 :close exec\_if :open :close :open 17 :open false code\_quote :open float\_mult :close :close exec\_rot :open 34.44 :close :open :close :open :close :close]
+PAREN: ()
+NUM PARENS STILL NEEDED AT THIS LOCATION: 0
+
+LAST INSTRUCTION: null
+
+FINAL PROGRAM:
+(exec\_do*times
+ (8 11)
+ exec\_if
+ ()
+ (17
+  (false code\_quote (float\_mult))
+  exec\_rot
+  (34.44)
+  ()
+  ()))
+```
+
+\subsubsection{ The "block wants" table}
+
+Running the following code in the Clojush system, in a namespace where `clojush.pushstate` has been used (such as in the file `clojush.problems.demos.simple-regression`) produced a list of defined Clojush instructions and their "block wants".
+
+    (into (sorted-map)
+          (filter \#(second \%)
+                  (map (fn [[ins ins-fn]]
+                         (vector ins (:parentheses (meta ins-fn))))
+                       @instruction-table)))
+
+
+
 \section{Instruction-Based Hierarchy}
 
 Here we talk about automatic parentheses.

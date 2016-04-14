@@ -217,6 +217,7 @@ If the \texttt{:close} gene value is larger than the size of the ``block stack''
 Finally, if the Plush genome is fully translated into Push code and one or more items remain on the ``block stack'', those items should be closed by the same process: that is, \texttt{close-and-open} tokens should produce new (empty) blocks at the end of the translated program.
 
 \subsection{Special genes}
+\label{special-instructions}
 
 An epigenetic marker and two special genes also affect the translation process:
 
@@ -428,12 +429,15 @@ Here we talk about uniform genetic operators, and how tree-based operators do ba
 
 
 
-\section{Instruction-Based Hierarchy}
+\section{Automatic Code Blocks}
 
-Here we talk about automatic parentheses.
+One of the primary motivations for developing Plush is the desire for more code blocks to follow instructions that take their arguments from the \textit{exec} stack. As discussed above, Plush automatically opens one or more parenthesized code block following each instruction that requires one or more arguments from the \textit{exec} stack. Here, we conduct an experiment to examine the utility of automatic code blocks.
+
+For this experiment we need a system that does not automatically create code blocks following specific instructions, but otherwise has similar characteristics to Plush. To achieve these goals, we started with Plush and removed the automatic opening of code blocks following specific instructions. We then added to the instruction set copies of \texttt{noop\_open\_paren}, as described in Section~\ref{special-instructions}. Since we expect code blocks should be more common than other instructions, we added a number of copies of \texttt{noop\_open\_paren} to the instruction set to make a random program have a similar number of open parentheses as when using Plush with automatic parentheses; this means around 30 copies added to about 150 other instructions. Otherwise, this method uses the same implementation as Plush, including close parenthesis markers. We call this method \textit{No Auto-Parens} for this experiment.
 
 
-\subsection{Experiment and Results}
+
+%\subsection{Experiment and Results}
 
 
 \begin{table}
@@ -457,6 +461,7 @@ Replace Space With Newline &  51 & 51 \\
 Negative To Zero           &  45 & 34 \\
 X-Word Lines               &   8 &  0 \\
 Count Odds                 &   8 &  5 \\
+Digits                     &   7 &  9 \\
 \noalign{\smallskip}\hline\noalign{\smallskip}
 \end{tabular}
 \end{table}

@@ -220,9 +220,22 @@ Finally, if the Plush genome is fully translated into Push code and one or more 
 
 An epigenetic marker and two special genes also affect the translation process:
 
-- A Plush gene with a `:silent` item should not affect the growing Push program, or the translation process (either through adding things to the ``block stack'' or closing blocks)
-- The  \texttt{noop\_open\_paren} instruction immediately opens a new block in the Push program and pushes a new `close` token onto the ``block stack'', but does not add any other tokens.
-- The  \texttt{noop\_delete\_prev\_paren\_pair}  instruction restructures the Push program \textit{without affecting the translation state in any other way}: it searches through the Push program until it finds the last block closed in translation (details depend on implementation), and ``lifts'' the contents of that block to the level of its parent in the program. For example, if the Push program is \texttt{[1 2 (3 4) 5 (6 *)]} (with the asterisk indicating where the next item would be added, inside a currently unclosed block), the result of applying this transformation would be \texttt{[1 2 3 4 5 (6 *)]}.
+\begin{itemize}
+\item
+A Plush gene with a `:silent` item should not affect the growing Push program, or the translation process (either through adding things to the ``block stack'' or closing blocks)
+
+\item
+The  \texttt{noop\_open\_paren} instruction immediately opens a new block in the Push program and pushes a new `close` token onto the ``block stack'', but does not add any other tokens.
+
+\item
+The  \texttt{noop\_delete\_prev\_paren\_pair}  instruction restructures the Push program \textit{without affecting the translation state in any other way}: it searches through the Push program until it finds the last block closed in translation (details depend on implementation), and ``lifts'' the contents of that block to the level of its parent in the program. For example, if the Push program is \texttt{[1 2 (3 4) 5 (6 *)]} (with the asterisk indicating where the next item would be added, inside a currently unclosed block), the result of applying this transformation would be \texttt{[1 2 3 4 5 (6 *)]}.
+
+\end{itemize}
+
+\subsection{Genetic Operators}
+
+
+Here we talk about uniform genetic operators, and how tree-based operators do bad things. Heavy citation of the ULTRA paper \citep{Spector:2013:GPTP}.
 
 % \subsection{Implementation}
 
@@ -450,9 +463,8 @@ Count Odds                 &   8 &  5 \\
 
 \section{Uniform Genetic Operators}
 
-Here we talk about uniform genetic operators, and how tree-based operators do bad things. Heavy citation of the ULTRA paper \citep{Spector:2013:GPTP}.
 
-Is uniform mutation most important?
+
 
 
 \subsection{Experiment and Results}

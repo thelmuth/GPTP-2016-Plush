@@ -4,7 +4,7 @@
 \title*{Plush: Linear Genomes for PushGP}
 % Use \titlerunning{Short Title} for an abbreviated version of
 % your contribution title if the original one is too long
-\author{Tom, Lee, Nic, Bill Tozier, Saul}
+\author{Thomas Helmuth, Lee Spector, Nicholas Freitag McPhee, and Saul Shanabrook}
 % Use \authorrunning{Short Title} for an abbreviated version of
 % your contribution title if the original one is too long
 \institute{Name of First Author \at Name, Address of Institute
@@ -433,21 +433,14 @@ Here we talk about uniform genetic operators, and how tree-based operators do ba
 
 One of the primary motivations for developing Plush is the desire for more code blocks to follow instructions that take their arguments from the \textit{exec} stack. As discussed above, Plush automatically opens one or more parenthesized code block following each instruction that requires one or more arguments from the \textit{exec} stack. Here, we conduct an experiment to examine the utility of automatic code blocks.
 
-For this experiment we need a system that does not automatically create code blocks following specific instructions, but otherwise has similar characteristics to Plush. To achieve these goals, we started with Plush and removed the automatic opening of code blocks following specific instructions. We then added to the instruction set copies of \texttt{noop\_open\_paren}, as described in Section~\ref{special-instructions}. Since we expect code blocks should be more common than other instructions, we added a number of copies of \texttt{noop\_open\_paren} to the instruction set to make a random program have a similar number of open parentheses as when using Plush with automatic parentheses; this means around 30 copies added to about 150 other instructions. Otherwise, this method uses the same implementation as Plush, including close parenthesis markers. We call this method \textit{No Auto-Parens} for this experiment.
+For this experiment we need a system that does not automatically create code blocks following specific instructions, but otherwise has similar characteristics to Plush. To achieve these goals, we started with Plush and removed the automatic opening of code blocks following specific instructions. We then added to the instruction set copies of \texttt{noop\_open\_paren}, as described in Section~\ref{special-instructions}. Since we expect code blocks should be more common than other instructions, we added a number of copies of \texttt{noop\_open\_paren} to the instruction set to make a random program have a similar number of open parentheses as when using Plush with automatic parentheses; this means around 30 copies added to about 150 other instructions. Otherwise, this method uses the same implementation as Plush, including close parenthesis markers. We call this method \textit{Auto-Parens Off} for this experiment.
 
-
-
-%\subsection{Experiment and Results}
-
+We compare Plush having automatic parentheses on and off using five general program synthesis benchmark problems. These problems require programs to manipulate multiple data types and use control flow structures. As such, we expect solutions to these problems will likely use hierarchical structure of code blocks in order to solve the problem, although solutions are possible without such structure. For more details about each problem, see their definitions in \cite{Helmuth:2015:GECCO}.
 
 \begin{table}
 \centering
 \caption{
-Number of succesful runs out of 100.
-In Plush, opening parenthesis are added after specific instructions.
-In the other, instructions are inserted into the instruction set that
-simply opened parentheses
-     ??I dont understand exactly how this stops adding parenthesis??
+Number of succesful runs out of 100. To be successful, a program has to perfectly pass all cases in the training set as well as an unseen test set.
 }
 \label{no-auto-parens-experiment}       % Give a unique label
 %
@@ -455,7 +448,7 @@ simply opened parentheses
 %
 \begin{tabular}{l r r}
 \hline\noalign{\smallskip}
-Problem                    & Plush & ~No Auto-Parens \\
+Problem                    & Plush & ~Auto-Parens Off \\
 \noalign{\smallskip}\svhline\noalign{\smallskip}
 Replace Space With Newline &  51 & 51 \\
 Negative To Zero           &  45 & 34 \\
@@ -465,6 +458,13 @@ Digits                     &   7 &  9 \\
 \noalign{\smallskip}\hline\noalign{\smallskip}
 \end{tabular}
 \end{table}
+
+We conducted 100 runs with automatic parentheses on and 100 with them off on each problem. Table~\ref{no-auto-parens-experiment} gives the number of successful runs, i.e. runs that found a solution program that passed all of the training cases as well as every case in an unseen test set. The only significant difference having automatic parentheses on and off is on the X-Word Lines problem, where having them on was significantly better; in fact the set of runs with them off found no solutions.
+
+We examined a sample of the solution programs from each problem. With the exception of the Replace Space With Newline problem, every solution program made semantic use of code blocks; in other words, each contained a code block that was an argument to an instruction that manipulated the \textit{exec} stack. This was true both of programs using automatic parentheses and those that did not. On the other hand, almost all of the solutions to the Replace Space With Newline problem did not make semantic use of code blocks.
+
+While these results do not make a strong case for the importance of automatic code blocks, they do hint at its power, specifically on the X-Word Lines problem. In this problem, a program must take an input string and an integer $X$, and should print the string with exactly $X$ words on each line. Interestingly, every solution to this problem had at least two layers of nested, semantically-meaningful code blocks, which we did not see in many of the solutions to other problems. It may be the case that finding the correct position for one set of parentheses does not drastically hinder evolution, but correctly nesting multiple sets of parentheses significantly increases the difficulty.
+
 
 \section{Uniform Genetic Operators}
 

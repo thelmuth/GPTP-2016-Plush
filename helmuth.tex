@@ -234,9 +234,14 @@ The  \texttt{noop\_delete\_prev\_paren\_pair}  instruction restructures the Push
 \end{itemize}
 
 \subsection{Genetic Operators}
+\label{section:genetic-operators}
 
 
 Here we talk about uniform genetic operators, and how tree-based operators do bad things. Heavy citation of the ULTRA paper \citep{Spector:2013:GPTP}.
+
+
+We should note somewhere (maybe here?) that uniform genetic operators have allowed us to avoid many of the pitfalls of tree-based genetic operators. In particular, we have never observed bloat (or drastic drops in code size) when using these operators. Any others we should mention?
+
 
 % \subsection{Implementation}
 
@@ -437,7 +442,7 @@ For this experiment we need a system that does not automatically create code blo
 
 We compare Plush having automatic parentheses on and off using five general program synthesis benchmark problems. These problems require programs to manipulate multiple data types and use control flow structures. As such, we expect solutions to these problems will likely use hierarchical structure of code blocks in order to solve the problem, although solutions are possible without such structure. For more details about each problem, see their definitions in \cite{Helmuth:2015:GECCO}.
 
-\begin{table}
+\begin{table}[t]
 \centering
 \caption{
 Number of succesful runs out of 100. To be successful, a program has to perfectly pass all cases in the training set as well as an unseen test set.
@@ -468,18 +473,12 @@ While these results do not make a strong case for the importance of automatic co
 
 \section{Uniform Genetic Operators}
 
-
-
-
-
-\subsection{Experiment and Results}
-
-
+As described in Section~\ref{section:genetic-operators}, the linear genomes of Plush allowed us to implement uniform genetic operators that don't exhibit the 
+strange behaviors often associated with tree-based genetic operators. Here we explore the efficacy of each of these operators by comparing sets of runs using different combinations and probabilities of operators. We tested five different treatments consisting of different probabilities of each genetic operator being used to produce a particular child; these treatments are detailed in Table~\ref{genetic-operator-combinations}.
 
 \begin{table}
 \centering
-\caption{The makeup of genetic operators for the experiments referenced in
-Table~\ref{genetic-operator-results}.
+\caption{The probabilities of using each genetic operator to create a child for the five different treatments used in our genetic operator experiments. The operators, listed by their abreviations, are:
 ``Alt.'' = alternation,
 ``Uni. Mut.'' = uniform mutation,
 ``Close Mut.'' = close mutation, and
@@ -487,7 +486,7 @@ Table~\ref{genetic-operator-results}.
 \label{genetic-operator-combinations}
 \begin{tabular}{ll llll}
 \hline\noalign{\smallskip}
-Designation & Description & Alt. & Uni. Mut. & Close Mut. & Alt. + Uni. Mut. \\
+Treatment & Description & Alt. & Uni. Mut. & Close Mut. & Alt. + Uni. Mut. \\
 \noalign{\smallskip}\svhline\noalign{\smallskip}
 REG & Regular Operators &  0.2 &  0.2 &  0.1 &  0.5  \\
 NCM & No Close Mut.  &  0.22 &  0.22 &  0 &  0.56  \\

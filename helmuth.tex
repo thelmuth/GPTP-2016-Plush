@@ -1,7 +1,7 @@
 %%%%%%%%%%%%%%%%%%%% author.tex %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %%%%%%%%%%%%%%%% Springer %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\title*{Plush: Linear Genomes for PushGP}
+\title*{Linear Genomes for Structured Programs}
 % Use \titlerunning{Short Title} for an abbreviated version of
 % your contribution title if the original one is too long
 \author{Thomas Helmuth, Lee Spector, Nicholas Freitag McPhee, and Saul Shanabrook}
@@ -12,10 +12,13 @@
 
 \maketitle
 
-\abstract{Each chapter should be preceded by an abstract (10--15 lines long) that summarizes the content.}
+\abstract{
+In most genetic programming systems, candidate solution programs themselves serve as the genetic material upon which variation operators act.
+However, the hierarchical structure and syntactic constraints on computer programs make it difficult to implement variation operators that affect different parts of programs with uniform probability, and this can have detrimental effects on evolutionary search. In prior work, structured programs were linearized prior to uniform variation, but this necessitated syntactic repair after variation, which reintroduced non-uniformities. In this chapter we describe a new approach that uses linear genomes, from which structured programs are ``expressed'' only for the purpose of fitness testing. We present the new approach in detail and show how it facilitates both uniform variation and the evolution of programs with meaningful structure.
+}
 
 \begin{keywords}
-keywords to your chapter, these words should also be indexed, do indexing later
+Uniform variation, linear genomes, Push, Plush
 \end{keywords}
 \index{keywords to your chapter}
 \index{these words should also be indexed}
@@ -23,7 +26,36 @@ keywords to your chapter, these words should also be indexed, do indexing later
 \section{Introduction}
 \label{Introduction}
 
-Intro goes here. The overall story is that linear representations allows us to use clean uniform genetic operators and to get automatically hierarchical programs through automatic parentheses attached to specific instructions.
+In genetic programming, the goal is to evolve computer programs that solve specified problems, using methods based on biological genetics and evolutionary processes.
+One of the obvious challenges, from the beginning, has been the fact that biological genomes are linear sequences of nucleotides that can be varied uniformly, whereas computer programs generally have hierarchical structure and must satisfy syntactic constraints.
+
+What is meant by ``uniformity'' in this context? In prior work \cite{GPTP:ULTRA} we defined ``uniformity'' in terms of two desiderata for variation operators:
+
+\begin{itemize}
+\item ``that the probability of an inherited program component being modified during inheritance is independent of the size and shape of the parent programs beyond the component in question'' 
+\item ``that pairs of parents are combined in ways that allow arbitrary combinations of components from each parent to appear in the child.''
+\end{itemize}
+
+The field's earliest work leveraged the relative simplicity of Lisp symbolic expressions, which can express richly structured programs despite having few syntactic constraints in comparison to other common programming languages \cite{koza:book}. This simplifies the expression of variation operators that produce syntactically valid children from syntactically valid parents, but it presents obvious challenges for achieving uniformity. This is because, in a hierarchically structured representation such as Lisp symbolic expressions, some components {\it contain} other components. Modifying a small component will modify all larger components that contain it, while replacing a large component will replace all subcomponents that it contains. Attempts to modify a large component while retaining subcomponents may be complicated by the fact that changes to the large component may change the number or nature of the subcomponents that it requires, for example if a function call is replaced by a call to a different function that takes a different number of arguments.
+
+The biases inherent in the non-uniform variation of hierarchically structured programs can be seen to have created a variety of headaches for genetic programming research and development over the years. (BLOAT, PROTECTION FROM CROSSOVER)
+
+once types are involved, syntax a bigger deal and the challenges of uniformity are exacerbated
+
+so-called uniform subtree mutation (Van Belle and Ackley) and ``uniform crossover'' (Page et al) are inadequate (CITES ARE IN GPTP-ULTRA).
+
+meanwhile: machine code lgp etc.: but here there's not structure, and scale-up seems implausible
+
+Grammatical evolution, (mention problems with wrapping etc?) permits genotypic uniformity but effects on programs are probably highly non-uniform 
+
+ULTRA as first approach to solving this problem
+
+issues with ULTRA: repair had strange effects that were difficult to control
+
+new approach, linear, epigenetic (but note not always any inheritance beyond the genetic, as per Tozier; cite La Cava), structure is in the epigenetics. In addition to supporting uniform variation without the drawbacks of ULTRA, it provides the opportunity to put structure where we want it, during the gene expression process
+
+roadmap of rest of this chapter
+
 
 
 
@@ -31,39 +63,30 @@ Intro goes here. The overall story is that linear representations allows us to u
 %% copied from http://faculty.hampshire.edu/lspector/pubs/spector-gptp-2013-preprint-erratum.pdf
 %% So I guess we could quote the whole thing?
 
-Push is a programming language that was designed specifically for use in evolutionary
-computation systems, as the language in which evolving programs are expressed
-(Spector, 2001; Spector and Robinson, 2002; Spector et al, 2005). Push is a stackbased
-programming language that is similar in some ways to others that have been
-used for GP (e.g. (Perkis, 1994)). It is a postfix language in which literals are pushed
-onto data stacks and instructions act on stack data and return their results to stacks.
-One novel feature of Push is that a separate stack is used for each data type. Instructions
-take their arguments (if any) from stacks of the appropriate types and they
-leave their results (if any) on stacks of the appropriate types. This allows instructions
-and literals to be freely intermixed regardless of type while still ensuring execution
-safety. By convention, instructions that find insufficient data on the relevant stacks
-act as “no-ops”—that is, they do nothing.
+The Push programming language was developed specifically to serve as the target language for program evolution in genetic programming and related program synthesis methods
+(Spector, 2001; Spector and Robinson, 2002; Spector et al, 2005). Push is a postfix, stack-based language, as have been others used for genetic programming (Perkis, 1994). 
+When a Push program is executed, literals are pushed
+onto data stacks and instructions act on data that is on the stacks.
+Among the types of data stored on stacks and manipulated by instructions is {\ttfamily code}, which permits the expression of complex control structures via code manipulation, and program execution is implemented through the decomposition of programs and the processing of their instructions and literals on the {\ttfamily exec} stack.
+Because all instructions take their arguments from appropriately typed stacks, and because of the Push convention that instructions finding insufficient data on the relevant stacks
+act as {\ttfamily no-op}s, instructions and literals of any types can be interleaved in arbitrary ways without risk of type errors.
 
-Many of Push’s most unusual and powerful features stem from the fact that
-code is itself a Push data type, and from the fact that Push programs can easily
-(and often do) manipulate their own code as they run. Push programs may be hierarchically
-structured with parentheses, and this hierarchical structure affects how
-code-manipulation instructions work. It also affects the ways that traditional genetic
-operators operate on programs, just as the analogous structure of tree-based
-programs affects the ways that traditional genetic operators operate on them. In the
-most standard configuration PushGP uses mutation and crossover operators that are
-almost identical to those used in tree-based genetic programming, with mutation replacing
-a sub-expression (a literal or a parenthesized code fragment) with a newly
-generated sub-expression, and with crossover replacing a sub-expression with a subexpression
-randomly chosen from another program in the population.
+Like Lisp symbolic expressions, Push programs may be hierarchically
+structured with parentheses, and this structure has consequences for program execution when code-manipulation instructions are used. For example, the {\ttfamily exec\_if} instruction will execute one of the top two items on the {\ttfamily exec} stack, depending on the value on top of the {\ttfamily boolean} stack, and discard the other. If those items are parenthesized expressions then the parentheses will serve to demarcate conditional execution branches.
 
+In early versions of PushGP, the parenthetic structure of programs also affected the ways that  genetic
+operators operated on programs. The genetic operators in these versions of PushGP were intentionally similar to those used in traditional, Lisp symbolic expression genetic programming systems; mutation involved replacing subexpressions with new subexpressions, while crossover involved the exchange of subexpressions across programs. This facilitated comparisons between the different program representations, and the translation of of ideas from one project to another, but it produced the same challenges for PushGP as for traditional genetic programming with respect to uniform variation.
+
+\section{ULTRA}
+
+Brief description of ULTRA, how it worked, and what we showed about it in prior GPTP chapter.
 
 \section{Plush}
 \textit{Plush}\footnote{\textbf{L}inear \textbf{Push}} \textit{genomes} are
 an alternative representation of a Push program. There is a many to one mapping
 from Plush to Push code.
 
-\subsection{Motivation}
+\subsection{THESE IDEAS GO OTHER PLACES}
 We created them to address two problems we had evolving Push programs.
 
 First, genetic operators for nested data structures (trees) are more complex
@@ -534,7 +557,7 @@ SAY MORE HERE ABOUT THE RESULTS AND WHAT THEY MEAN; in particular, uniform mutat
 
 
 \begin{acknowledgement}
-Go here.
+This material is based upon work supported by the National Science Foundation under Grants No. 1129139 and 1331283. Any opinions, findings, and conclusions or recommendations expressed in this publication are those of the authors and do not necessarily reflect the views of the National Science Foundation.
 \end{acknowledgement}
 %
 

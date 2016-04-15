@@ -239,6 +239,8 @@ The  \texttt{noop\_delete\_prev\_paren\_pair}  instruction restructures the Push
 
 Here we talk about uniform genetic operators, and how tree-based operators do bad things. Heavy citation of the ULTRA paper \citep{Spector:2013:GPTP}.
 
+[TMH: We should describe the operators in as much detail as possible. Don't forget that uniform mutation can sometimes ``tweak'' constants!]
+
 
 We should note somewhere (maybe here?) that uniform genetic operators have allowed us to avoid many of the pitfalls of tree-based genetic operators. In particular, we have never observed bloat (or drastic drops in code size) when using these operators. Any others we should mention?
 
@@ -442,7 +444,7 @@ For this experiment we need a system that does not automatically create code blo
 
 We compare Plush having automatic parentheses on and off using five general program synthesis benchmark problems. These problems require programs to manipulate multiple data types and use control flow structures. As such, we expect solutions to these problems will likely use hierarchical structure of code blocks in order to solve the problem, although solutions are possible without such structure. For more details about each problem, see their definitions in \cite{Helmuth:2015:GECCO}.
 
-\begin{table}[t]
+\begin{table}
 \centering
 \caption{
 Number of succesful runs out of 100. To be successful, a program has to perfectly pass all cases in the training set as well as an unseen test set.
@@ -474,7 +476,7 @@ While these results do not make a strong case for the importance of automatic co
 \section{Uniform Genetic Operators}
 
 As described in Section~\ref{section:genetic-operators}, the linear genomes of Plush allowed us to implement uniform genetic operators that don't exhibit the 
-strange behaviors often associated with tree-based genetic operators. Here we explore the efficacy of each of these operators by comparing sets of runs using different combinations and probabilities of operators. We tested five different treatments consisting of different probabilities of each genetic operator being used to produce a particular child; these treatments are detailed in Table~\ref{genetic-operator-combinations}.
+drawbacks often associated with tree-based genetic operators. Here we explore the efficacy of each of these operators by comparing sets of runs using different combinations and probabilities of operators. We tested five different treatments consisting of different probabilities of each genetic operator being used to produce a particular child; these treatments are detailed in Table~\ref{genetic-operator-combinations}. Note that while no prior work has formally compared different settings of these operators, previous studies using Plush genomes \citep{Helmuth:2015:GECCO, Helmuth:2015:GPTP, McPhee:2015:GPTP} used the treatment REG.
 
 \begin{table}
 \centering
@@ -497,24 +499,29 @@ OUM & Onlt Uni. Mut. &  0 &  1.0 &  0 &  0  \\
 \end{tabular}
 \end{table}
 
-
 \begin{table}
 \centering
 \label{genetic-operator-results}
-\caption{Number of succesful runs for different combinations of genetic
-operators out of 100.}
+\caption{Number of succesful runs out of 100 trials for different genetic operator treatments on five program synthesis problems; see Table~\ref{genetic-operator-combinations} for treatment details. To be successful, a program has to perfectly pass all cases in the training set as well as an unseen test set. [DO WE WANT TO MOVE THE NA COLUMN SECOND TO LAST?]}
 \begin{tabular}{l r r r r r}
 \hline\noalign{\smallskip}
 Problem                    & REG & NA & NCM & NUM & OUM \\
 \noalign{\smallskip}\svhline\noalign{\smallskip}
-Replace Space With Newline &  51 & 55 &  50 &  24 &   x \\
-Syllables                  &  18 &  9 &  20 &   7 &   x \\
-Negative To Zero           &  45 & 46 &  41 &  11 &   x \\
-X-Word Lines               &   8 &  1 &  12 &   0 &   x \\
-Count Odds                 &   8 &  6 &   5 &   0 &   x \\
+Replace Space With Newline &  51 & 55 &  50 &  24 &  41 \\
+Syllables                  &  18 &  9 &  20 &   7 &   7 \\
+Negative To Zero           &  45 & 46 &  41 &  11 &  40 \\
+X-Word Lines               &   8 &  1 &  12 &   0 &   1 \\
+Count Odds                 &   8 &  6 &   5 &   0 &   1 \\
 \noalign{\smallskip}\hline\noalign{\smallskip}
 \end{tabular}
 \end{table}
+
+We conducted trials with 100 GP runs using each treatment on five general program synthesis benchmark problems; again, see \cite{Helmuth:2015:GECCO} for details of these problems. We present the results of these tests in Table~\ref{genetic-operator-results}.
+
+While all treatments lead to relatively similar results, the treatment that performed most differently from the others is NUM, or No Uniform Mutation. This treatment primarily uses alternation, with a small percentage of uniform close mutation operators. NUM had much lower success rates on all problems compared to REG, with a chi-squared significance test (with Holm correction) indicating significant differences at the 0.05 level on Replace Space With Newline, Negative To Zero, and X-Word Lines. This result indicates that uniform mutation has the largest role in determining success of PushGP on these problems.
+
+
+SAY MORE HERE ABOUT THE RESULTS AND WHAT THEY MEAN; in particular, uniform mutation seems to be the most important operator, but is insufficient to produce the best results on is own. Adding both alternation and uniform close mutation seems to give the best spread, though leaving off uniform close mutation is very similar.
 
 
 

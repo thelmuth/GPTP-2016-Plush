@@ -261,13 +261,39 @@ The  \texttt{noop\_delete\_prev\_paren\_pair}  instruction restructures the Push
 \subsection{Genetic Operators}
 \label{section:genetic-operators}
 
-
 Here we talk about uniform genetic operators, and how tree-based operators do bad things. Heavy citation of the ULTRA paper \citep{Spector:2013:GPTP}.
 
-[TMH: We should describe the operators in as much detail as possible. Don't forget that uniform mutation can sometimes ``tweak'' constants!]
-
-
 We should note somewhere (maybe here?) that uniform genetic operators have allowed us to avoid many of the pitfalls of tree-based genetic operators. In particular, we have never observed bloat (or drastic drops in code size) when using these operators. Any others we should mention?
+
+------------
+
+\begin{table}[t]
+\centering
+\caption{Genetic operator parameter settings used in all of our PushGP runs.}
+\label{tableGPconstantParams}
+%\rowcolors{3}{Gray}{white}
+\begin{tabular}{l r}
+\hline\noalign{\smallskip}
+%\textbf{Parameter} & \textbf{Value} \tabularnewline
+Parameter & Value \tabularnewline
+\noalign{\smallskip}\svhline\noalign{\smallskip}
+uniform mutation rate & 0.01 \tabularnewline
+alternation rate & 0.01 \tabularnewline
+alignment deviation & 10 \tabularnewline
+uniform close mutation rate & 0.1 \tabularnewline
+\noalign{\smallskip}\hline\noalign{\smallskip}
+\end{tabular}
+\end{table}
+
+
+
+One of the advantages of a linear genome representation is it allows us to use uniform genetic operators. This section describes in detail the genetic operators we use with Plush.
+
+The primary mutation operator we use with Plush, \textit{uniform mutation}, gives some chance to changing each instruction in the genome. 
+
+
+
+[TMH: We should describe the operators in as much detail as possible. Don't forget that uniform mutation can sometimes ``tweak'' constants!]
 
 
 % \subsection{Implementation}

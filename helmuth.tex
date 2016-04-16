@@ -81,9 +81,8 @@ operators operated on programs. The genetic operators in these versions of PushG
 
 
 \section{Plush}
-\textit{Plush}\footnote{\textbf{L}inear \textbf{Push}} \textit{genomes} are
-an alternative representation of a Push program. There is a many to one mapping
-from Plush to Push code.
+\textit{Plush}\footnote{\textbf{L}inear \textbf{Push}} \textit{genomes} provide
+an alternative representation of a Push program, and stores a program in a way that enables simple uniform genetic variations. There is a many to one mapping from Plush to Push code, as described by the translation process below.
 
 
 
@@ -96,14 +95,12 @@ from Plush to Push code.
 % Another advantage of moving to linear Plush genomes instead of traditional tree genomes or hierarchical Push programs is that it enables simple use of uniform genetic operators. The uniform genetic operators implemented in Clojush are inspired by the operator ULTRA, which was designed for Push programs, requiring them to be translated into a linear form and back \cite{Spector:2013:GPTP}. The main crossover operator, \textit{alternation}, traverses two parents in parallel while copying instructions from one parent or the other to the child. While traversing the parents, copying can jump from one parent to the other with probability specified by the \textit{alternation rate} parameter. When alternating between parents, the index at which to continue copying may be offset backward or forward some amount based on a random sample from a normal distribution with mean 0 and standard deviation set by the \textit{alignment deviation} parameter. We also use a \textit{uniform mutation} operator that traverses a parent and with some probability replaces each instruction with a random one. In order to manipulate the locations of closing parentheses, we include a \textit{uniform close mutation} operator that may increment or decrement the close epigenetic marker of any given instruction. Finally, we allow genetic operator pipelines that combine multiple operators; for example, we often use alternation followed by uniform mutation, which closely resembles ULTRA \cite{Spector:2013:GPTP}.
 
 \subsection{Structure}
-Plush genomes are linear sequences of maps, each of which contain (at a minimum):
-
+Plush genomes are linear sequences of \textit{gene maps}, each of which contain (at a minimum):
 \begin{itemize}
   \item An \texttt{:instruction}
   \item A \texttt{:close} count
 \end{itemize}
-
-For example, here is a very simple Plush genome that encodes the Push program \texttt{(1 2 integer\_add)}
+For example, below is a very simple Plush genome that encodes the Push program \texttt{(1 2 integer\_add)}:
 
 \begin{verbatim}
 [ {:instruction 1, :close 0}
@@ -111,23 +108,21 @@ For example, here is a very simple Plush genome that encodes the Push program \t
   {:instruction integer_add, :close 0} ]
 \end{verbatim}
 
-Plush gene maps can optionally contain other values. We currentl use the
-epigenetic marker `:silent`,
-which is used to indicate that the containing gene should be ignored when
-translating from the genome to the program.
+Plush gene maps can optionally contain other values. For example, the
+epigenetic marker \texttt{:silent} contains a boolean that indicates whether the containing gene should be ignored when
+translating from the genome to the program. We have not yet added other epigenetic markers to Plush, but could imagine others being useful.
 
 \subsection{Translation}
 
-The process of translating a linear Plush genome into a syntactically valid Push program (which is a tree) is for the most part a depth-first construction of that program tree. Simple programs without any parenthesized blocks are constructed, one gene at a time, by appending the `:instruction` item to the program. As a genome is translated, some additional state should be managed in a ``block stack'', which will keep track of parenthesized blocks ``promised'' to genes translated earlier in the process.
+The process of translating a linear Plush genome into a syntactically valid, hierarchical Push program (which is a tree) is for the most part a depth-first construction of that program tree. The creation of hierarchical structure is based on the instructions in the genome and whether they take arguments in the form of code blocks. If a genome does not contain instructions that take code block arguments, the program is constructed one gene at a time by appending the `:instruction` item to the program. Otherwise, code blocks are automatically opened following such instructions, creating a hierarchical program structure. These \textit{automatic code blocks} ensure that the hierarchical structure of a program has semantic meaning according to its instructions. It may help to think about a language such as Python or Java, in which it makes sense to block off a chunk of code following the start of a loop, but does not make semantic (or syntactic) sense to have a block of code follow a variable assignment. While such semantically-irrelevant code blocks are syntactically valid in Push, removing them will almost never change the semantics of the program.
 
 \subsubsection{Opening blocks}
 
-Because the parenthesized blocks in the Push language are (for the most part)
-only ever used by instructions that take their arguments from the execution stack,
+Because the parenthesized code blocks in the Push language are primarily
+used by instructions that take their arguments from the execution stack,
 the Plush translation process explicitly \textit{adds} syntactically correct
-blocks after each of those instructions. These are instrucitons like
-\texttt{exec\_if}, which needs two blocks, and \texttt{exec\_do*times}, which needs
-one.
+blocks after each of those instructions. For example, the instruction
+\texttt{exec\_if} requires two blocks, one to execute if the condition is true and the other to execute if the condition is false. The instruction \texttt{exec\_do*times} needs one code block, which is executed repeatedly in a loop. Many other instructions take code block arguments.
 
 % ```clojure
 %     {code\_quote 1,
@@ -167,70 +162,63 @@ one.
 %      zip\_replace\_fromexec 1}
 % ```
 
+As a genome is translated, a ``block stack'' is used to keep track of parenthesized blocks ``promised'' to genes translated earlier in the process.
 When one of these instructions is encoded by a Plush gene, a new
-parenthesized branch should be begun in the unfolding Push program, and zero or
-more \textit{future} parenthesized blocks should also be set up using a
-``block stack''.
-
-When a translated instruction ``wants'' one block, subsequent translated tokens will be added to the Push program within that block until it is explicitly \textit{closed} (see below). A token should be pushed to the ``block stack'' to indicate that a block is open.
+parenthesized branch should be begun in the unfolding Push program, and one or
+more \textit{future} parenthesized blocks should also be added to the block stack if the instruction requires two or more code blocks.
+When a translated instruction opens one block, subsequent translated instructions will be added to the Push program within that block until it is explicitly \textit{closed} (see below). Additionally, a token should be pushed to the block stack to indicate that a code block is open.
 
 When a translated instruction ``wants'' more than one block, subsequent tokens will be added to the Push program within the \textit{first} block until it is explicitly closed, and then immediately a second block will be opened again, and so on until the \textit{block stack} has been emptied. When an instruction wanting more than one block is translated, tokens should be pushed onto the \textit{block stack} that indicate that one (the last) should be closed, and then more tokens for each of the additional blocks to close and reopen new blocks.
 
-Whenever any gene is translated in which the instruction ``wants'' one or more blocks to open, a new block is opened \textit{immediately} in the resulting Push program.
+%Whenever any gene is translated in which the instruction ``wants'' one or more blocks to open, a new block is opened \textit{immediately} in the resulting Push program.
 
-There is a special instruction token, \texttt{noop\_open\_paren}, which immediately opens a new branch but writes no item to the Push program.
+There is a special instruction token, \texttt{noop\_open\_paren}, which immediately opens a new branch but writes no instruction to the Push program.
 
 No parenthesized branch is \textit{ever} opened in the Push program unless
 
 \begin{itemize}
 
-\item the encoded instruction explicitly appears on the ``wants list'' as wanting one or more branches
+\item the encoded instruction takes one or more code block arguments from Push's \texttt{exec} stack
 \item the instruction is \texttt{noop\_open\_paren}
 
 \end{itemize}
 
 \subsubsection{Closing blocks}
 
-As each gene is translated from Plush into Push code, the \texttt{:close} value also has an important effect on the resulting Push program's structure.
+As each gene is translated from Plush into Push code, the value of the \texttt{:close} epigenetic marker has an important effect on the resulting Push program's structure. For every gene that is translated from Plush to Push: \textit{after} the \texttt{:instruction} token has been added to growing Push program, and \textit{after} a single new branch has been opened (if the instruction wants one), and \textit{after} the suitable number of items have been pushed to the block stack, the \texttt{:close} marker is applied to the growing Push program.
 
-For every gene that is translated from Plush to Push: \textit{after} the \texttt{:instruction} token has been added to growing Push program, and \textit{after} a single new branch has been opened (if the instruction ``wants'' one, and \textit{after} the suitable number of items have been pushed to the ``block stack'', the \textit{:close} gene is applied to the growing Push program.
-
-If the \textit{:close} gene's value is 0, there is no effect. The next Plush gene will add its token(s) immediately following the preceding instruction's result.
-
-If the \textit{:close} gene is a positive integer, and there are \textit{no items} on the ``block stack'', there is no effect. Again, the next Plush gene will add its token(s) immediately following the preceding instruction's result.
-
-If the \textit{:close} gene is a positive integer and there are one or more items on the ``block stack'', some of the currently open blocks will be closed. The top (last-added) item on the ``block stack'' is popped, and
+If the \texttt{:close} marker's value is 0, there is no effect. The next Plush gene will add its \texttt{:instruction} token immediately following the preceding instruction.
+If the \texttt{:close} gene is a positive integer, and there are \textit{no items} on the block stack, there is no effect. Again, the next Plush gene will add its \texttt{:instruction} token immediately following the preceding instruction.
+If the \texttt{:close} gene is a positive integer and there are one or more items on the block stack, some of the currently open blocks will be closed. The top (last-added) item on the block stack is popped, and
 
 \begin{itemize}
 
-\item If what is popped from the ``block stack'' is a \textit{close} token, then the current block is closed. Regardless of the way the algorithm has been implemented, this means that the next Push item added to the program will be appended not inside the closed block, but as its (following) sibling.
+\item If what is popped from the block stack is a \texttt{close} token, then the current block is closed. Regardless of the way the algorithm has been implemented, this means that the next Push item added to the program will be appended not inside the closed block, but as its (following) sibling.
 \item If what is popped is a \texttt{close-and-open} token, then the current block is closed, and a new one is immediately opened. This means that the next Push item added to the program will be not be appended inside the closed block, but as its \textit{cousin}.
 \end{itemize}
 
-If the \texttt{:close} gene is greater than one, and there are sufficient items on the ``block stack'', blocks are closed (and potentially immediately re-opened) as indicated by the \texttt{:close} gene value.
-
-If the \texttt{:close} gene value is larger than the size of the ``block stack'', then the stack is exhausted and some blocks in the Push program may be left open (for the time being).
-
-Finally, if the Plush genome is fully translated into Push code and one or more items remain on the ``block stack'', those items should be closed by the same process: that is, \texttt{close-and-open} tokens should produce new (empty) blocks at the end of the translated program.
+If the \texttt{:close} gene is greater than one, and there are sufficient items on the block stack, multiple blocks are closed (and potentially immediately re-opened) as indicated by the \texttt{:close} gene value before proceeding to the next gene map.
+If the \texttt{:close} gene value is larger than the size of the block stack, then the stack is exhausted and all blocks in the Push program will be closed (for the time being).
+Finally, if the translation process reaches the end of the Plush genome and one or more items remain on the block stack, those items should be closed by the same process: that is, \texttt{close-and-open} tokens should produce new (empty) blocks at the end of the translated program.
 
 \subsection{Special genes}
 \label{special-instructions}
 
-An epigenetic marker and two special genes also affect the translation process:
+The \texttt{:silent} epigenetic marker and two special instructions also affect the translation process:
 
 \begin{itemize}
 \item
-A Plush gene with a `:silent` item should not affect the growing Push program, or the translation process (either through adding things to the ``block stack'' or closing blocks)
+A Plush gene map with a \texttt{:silent} marker set to \texttt{true} should not add instructions to the growing Push program and should not affect the translation process (either through adding things to the block stack or closing blocks). Such genes have been ``silenced.''
 
 \item
-The  \texttt{noop\_open\_paren} instruction immediately opens a new block in the Push program and pushes a new `close` token onto the ``block stack'', but does not add any other tokens.
+The  \texttt{noop\_open\_paren} instruction immediately opens a new block in the Push program and pushes a new \texttt{close} token onto the block stack, but does not add any instructions to the program.
 
 \item
-The  \texttt{noop\_delete\_prev\_paren\_pair}  instruction restructures the Push program \textit{without affecting the translation state in any other way}: it searches through the Push program until it finds the last block closed in translation (details depend on implementation), and ``lifts'' the contents of that block to the level of its parent in the program. For example, if the Push program is \texttt{[1 2 (3 4) 5 (6 *)]} (with the asterisk indicating where the next item would be added, inside a currently unclosed block), the result of applying this transformation would be \texttt{[1 2 3 4 5 (6 *)]}.
+The  \texttt{noop\_delete\_prev\_paren\_pair}  instruction restructures the Push program \textit{without affecting the translation state in any other way}: it searches through the Push program until it finds the last block closed in translation, and ``lifts'' the contents of that block to the level of its parent in the program. For example, if the Push program is \texttt{[1 2 (3 4) 5 (6 *)]} (with the asterisk indicating where the next item would be added, inside a currently unclosed block), the result of applying this transformation would be \texttt{[1 2 3 4 5 (6 *)]}.
 
 \end{itemize}
 
-\subsection{Genetic Operators}
+\section{Genetic Operators}
 \label{section:genetic-operators}
 
 \begin{table}[t]
@@ -314,7 +302,7 @@ Finally, we employ genetic operator pipelines to chain together two or more oper
 %      {:instruction 34.44 :close 0}))
 % ```
 
-% And here is a step-by-step working out of how this is translated into a Push program using the Clojush algorithm, showing the contents of the program as they are added, and how the `:paren` ``block stack'' as it is manipulated in each step:
+% And here is a step-by-step working out of how this is translated into a Push program using the Clojush algorithm, showing the contents of the program as they are added, and how the `:paren` block stack as it is manipulated in each step:
 
 % ```text
 % PROGRAM: []

@@ -52,9 +52,9 @@ Another motivation for the work described below was the fact that while ULTRA su
 
 The idea for the alternative approach that we present here arose when considering the problems raised above in the context of independent work that we were conducting in which ``epigenetic'' markers were added to instructions and literals in linear programs in order to turn those genes on or off \citep{LaCava:2014:GPTP, LaCava:2014:GECCOcomp, LaCava:2015:GECCO}.
 We realized we could use similar epigenetic markers to specify the hierarchical structure for programs that are ``expressed'' from linear genomes. This allows us to use linear genomes on which we can perform uniform genetic operators, while translating the genomes into hierarchical programs only for the sake of fitness testing.
-Furthermore, we specify that opening parentheses are automatically inserted following structure-dependent instructions during translation and use epigenetic markers only to indicate where closing parentheses should occur. Thus we ensure that parenthesized, hierarchical structures appear in programs next to instructions that can make use of them and not next to instructions that cannot.
+Furthermore, we specify that opening parentheses are automatically inserted following structure-dependent instructions during translation and use epigenetic markers only to indicate where closing parentheses should occur. Thus we make it more likely that parenthesized, hierarchical structures appear in programs next to instructions that can make use of them.
 
-We note that the use of the term ``epigenetic'' for these markers is most appropriate when they can change not only during reproduction but also while programs confront their problem environments. While we do not describe such processes here, we have used these markers in this way in the past \citep{LaCava:2015:GECCO}. In this work, we used hill climbing to modify the epigenetic markers of an individual if those modifications improve its fitness. While this effort did not produce significantly better results, using similar mutations to turn off or on genes in newly created children and allowing selection pressure to sort out the changes did produce impressively better results on 2 out of 5 problems. So, even though we do not explore changing epigenetic markers during the ``lifetimes'' of the programs in this work, these markers do enable such modifications; additionally, because of the ways that these markers are attached to instruction and literal ``genes,'' we think that the use of ``epigenetics'' is reasonable in this context.
+We note that the use of the term ``epigenetic'' for these markers is most appropriate when they can change not only during reproduction but also while programs confront their problem environments. While we do not describe such processes here, we have used these markers in this way in the past \citep{LaCava:2015:GECCO}. In that work, we used hill climbing to modify the epigenetic markers of an individual if those modifications improve its fitness. While this effort did not produce significantly better results, using similar mutations to turn off or on genes in newly created children, and allowing selection pressure to sort out the changes, did produce impressively better results on 2 out of 5 problems. So, even though we do not explore changing epigenetic markers during the ``lifetimes'' of the programs in the present work, the markers that we use do enable such modifications; additionally, because of the ways that these markers are attached to instruction and literal ``genes,'' we think that the use of the label ``epigenetic'' is reasonable in this context.
 
 In the remainder of this chapter we first provide a brief description of the Push programming language, in which the programs that we evolve in our systems are expressed. We then describe our new linear genome representation, which we call ``Plush'' (where the ``l'' is for ``linear''), in detail. This description is followed by experimental results that demonstrate the ways in which Plush facilitates program structure and the efficacy of various uniform genetic operators.
 
@@ -223,17 +223,17 @@ The  \texttt{noop\_delete\_prev\_paren\_pair}  instruction restructures the Push
 
 Here we give a brief example of a Plush genome and its corresponding Push program to illustrate the translation process. The genome:
 \begin{verbatim}
-[{:instruction exec\_do*times :close 0}
+[{:instruction exec_do*times :close 0}
  {:instruction 8 :close 0}
  {:instruction 11 :close 3}
- {:instruction integer\_add :close 0 :silent true}
- {:instruction exec\_if :close 1}
+ {:instruction integer_add :close 0 :silent true}
+ {:instruction exec_if :close 1}
  {:instruction 17 :close 0}
- {:instruction noop\_open\_paren :close 0}
+ {:instruction noop_open_paren :close 0}
  {:instruction false :close 0}
- {:instruction code\_quote :close 0}
- {:instruction float\_mult :close 2}
- {:instruction exec\_rot :close 0}
+ {:instruction code_quote :close 0}
+ {:instruction float_mult :close 2}
+ {:instruction exec_rot :close 0}
  {:instruction 34.44 :close 0}))
 \end{verbatim}
 is translated into the Push program:

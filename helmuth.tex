@@ -246,7 +246,7 @@ is translated into the Push program:
 \end{verbatim}
 
 
-\section{Genetic Operators}
+\section{Uniform Genetic Operators}
 \label{section:genetic-operators}
 
 \begin{table}[t]
@@ -475,7 +475,7 @@ While a formal treatment is beyond the scope of this study, we would like to not
 
 
 
-\section{Automatic Code Blocks}
+\section{Automatic Code Blocks Experiment}
 
 One of the primary motivations for developing Plush is the desire for more code blocks to follow instructions that take their arguments from the \textit{exec} stack. As discussed above, Plush automatically opens one or more parenthesized code block following each instruction that requires one or more arguments from the \textit{exec} stack. Here, we conduct an experiment to examine the utility of automatic code blocks.
 
@@ -512,7 +512,7 @@ We examined a sample of the solution programs from each problem. With the except
 While these results do not make a strong case for the importance of automatic code blocks, they do hint at its power, specifically on the X-Word Lines problem. In this problem, a program must take an input string and an integer $X$, and should print the string with exactly $X$ words on each line. Interestingly, every solution to this problem had at least two layers of nested, semantically-meaningful code blocks, which we did not see in many of the solutions to other problems. It may be the case that finding the correct position for one set of parentheses does not drastically hinder evolution, but correctly nesting multiple sets of parentheses significantly increases the difficulty.
 
 
-\section{Uniform Genetic Operators}
+\section{Uniform Genetic Operators Experiment}
 
 As described in Section~\ref{section:genetic-operators}, the linear genomes of Plush allowed us to implement uniform genetic operators that don't exhibit the 
 drawbacks often associated with tree-based genetic operators. Here we explore the efficacy of each of these operators by comparing sets of runs using different combinations and probabilities of operators. We tested five different treatments consisting of different probabilities of each genetic operator being used to produce a particular child; these treatments are detailed in Table~\ref{genetic-operator-combinations}. Note that while no prior work has formally compared different settings of these operators, previous studies using Plush genomes \citep{Helmuth:2015:GECCO, Helmuth:2015:GPTP, McPhee:2015:GPTP} used the treatment REG.
@@ -568,10 +568,7 @@ Finally, even though these experiments show some differences between genetic ope
 
 \section{Conclusions}
 
-We have described a linear representation (Plush) for structured programs (in the Push programming language), and shown that it allows for uniform genetic operators that produce meaningful structure while solving difficult problems. The central idea of the representation scheme is to use epigenetic markers, attached to instructions and literals, to indicate where structure should be added to programs when they are produced from the linear genomes. We compared the efficacy of different combinations of uniform genetic operators operating on Plush genomes, and we showed how the Plush-to-Push translation scheme facilitates the creation of programs with structure in appropriate places. We note that the Plush-based system appears to be relatively robust to settings of the genetic operators, and we note that it is capable of solving difficult software synthesis problems, without significant code bloat \citep{Helmuth:2015:GECCO}.
-
-
-
+We have described a linear representation (Plush) for structured programs (in the Push programming language), and shown that it allows for uniform genetic operators that produce meaningful structure while solving difficult problems. The central idea of the representation scheme is to use epigenetic markers, attached to instructions and literals, to indicate where structure should be added to programs when they are produced from the linear genomes. We compared the efficacy of different combinations of uniform genetic operators operating on Plush genomes, and we showed how the Plush-to-Push translation scheme facilitates the creation of programs with structure in appropriate places. We note that the Plush-based system appears to be relatively robust to settings of the genetic operators, and we note that it is capable of solving difficult software synthesis problems without prducing significant code bloat.
 
 
 

@@ -218,6 +218,34 @@ The  \texttt{noop\_delete\_prev\_paren\_pair}  instruction restructures the Push
 
 \end{itemize}
 
+
+\subsection{Example Translation}
+
+Here we give a brief example of a Plush genome and its corresponding Push program to illustrate the translation process. The genome:
+\begin{verbatim}
+[{:instruction exec\_do*times :close 0}
+ {:instruction 8 :close 0}
+ {:instruction 11 :close 3}
+ {:instruction integer\_add :close 0 :silent true}
+ {:instruction exec\_if :close 1}
+ {:instruction 17 :close 0}
+ {:instruction noop\_open\_paren :close 0}
+ {:instruction false :close 0}
+ {:instruction code\_quote :close 0}
+ {:instruction float\_mult :close 2}
+ {:instruction exec\_rot :close 0}
+ {:instruction 34.44 :close 0}))
+\end{verbatim}
+is translated into the Push program:
+\begin{verbatim}
+(exec_do*times (8 11) exec_if
+  ()
+  (17
+   (false code_quote (float_mult))
+   exec_rot (34.44) () ()))
+\end{verbatim}
+
+
 \section{Genetic Operators}
 \label{section:genetic-operators}
 
@@ -251,13 +279,9 @@ We use a crossover operator, \textit{alternation}, heavily inspired by the ULTRA
 
 Finally, we employ genetic operator pipelines to chain together two or more operators to create a single child. We mainly use this functionality to create a genome through alternation, and then apply uniform mutation to create the child genome.
 
-------------
+The genetic operators described here meet the requirements of uniformity described in Section~\ref{Introduction}. In particular, all three operators give uniform probability of inheriting particular genetic material in a parent: with uniform mutation and uniform close mutation, this probability is explicitly defined, and with alternation it is roughly one half. Additionally, alternation allows ``arbitrary combinations of components from each parent to appear in the child'' \citep{Spector:2013:GPTP}, even though some of these combinations may be more likely than others based on position in the parent.
 
-[This section does not go into why these operators are more ``uniform'' than alternatives. Maybe it should, if it's not elsewhere.]
-
-[Here we talk about uniform genetic operators, and how tree-based operators do bad things. Heavy citation of the ULTRA paper \citep{Spector:2013:GPTP}.]
-
-[We should note somewhere (maybe here?) that uniform genetic operators have allowed us to avoid many of the pitfalls of tree-based genetic operators. In particular, we have never observed bloat (or drastic drops in code size) when using these operators. Any others we should mention?]
+While a formal treatment is beyond the scope of this study, we would like to note that our experience with these uniform genetic operators has demonstrated that they avoid many of the unexpected pitfalls of tree-based genetic operators. In particular, we have never observed bloat (or drastic drops in program size) with these uniform operators.
 
 
 % \subsection{Implementation}

@@ -469,7 +469,7 @@ For this experiment we need a system that does not automatically create code blo
 
 We compare Plush having automatic parentheses on and off using five general program synthesis benchmark problems. These problems require programs to manipulate multiple data types and use control flow structures. As such, we expect solutions to these problems will likely use hierarchical structure of code blocks in order to solve the problem, although solutions are possible without such structure. For more details about each problem, see their definitions in \cite{Helmuth:2015:GECCO}.
 
-\begin{table}
+\begin{table}[t]
 \centering
 \caption{
 Number of succesful runs out of 100. To be successful, a program has to perfectly pass all cases in the training set as well as an unseen test set.
@@ -503,7 +503,7 @@ While these results do not make a strong case for the importance of automatic co
 As described in Section~\ref{section:genetic-operators}, the linear genomes of Plush allowed us to implement uniform genetic operators that don't exhibit the 
 drawbacks often associated with tree-based genetic operators. Here we explore the efficacy of each of these operators by comparing sets of runs using different combinations and probabilities of operators. We tested five different treatments consisting of different probabilities of each genetic operator being used to produce a particular child; these treatments are detailed in Table~\ref{genetic-operator-combinations}. Note that while no prior work has formally compared different settings of these operators, previous studies using Plush genomes \citep{Helmuth:2015:GECCO, Helmuth:2015:GPTP, McPhee:2015:GPTP} used the treatment REG.
 
-\begin{table}
+\begin{table}[t]
 \centering
 \caption{The probabilities of using each genetic operator to create a child for the five different treatments used in our genetic operator experiments. The operators, listed by their abreviations, are:
 ``Alt.'' = alternation,
@@ -524,7 +524,7 @@ OUM & Onlt Uni. Mut. &  0 &  1.0 &  0 &  0  \\
 \end{tabular}
 \end{table}
 
-\begin{table}
+\begin{table}[t]
 \centering
 \label{genetic-operator-results}
 \caption{Number of succesful runs out of 100 trials for different genetic operator treatments on five program synthesis problems; see Table~\ref{genetic-operator-combinations} for treatment details. To be successful, a program has to perfectly pass all cases in the training set as well as an unseen test set. [DO WE WANT TO MOVE THE NA COLUMN SECOND TO LAST?]}
@@ -545,9 +545,11 @@ We conducted trials with 100 GP runs using each treatment on five general progra
 
 While all treatments lead to relatively similar results, the treatment that performed most differently from the others is NUM, or No Uniform Mutation. This treatment primarily uses alternation, with a small percentage of uniform close mutation operators. NUM had much lower success rates on all problems compared to REG, with a chi-squared significance test (with Holm correction) indicating significant differences at the 0.05 level on Replace Space With Newline, Negative To Zero, and X-Word Lines. This result indicates that uniform mutation has the largest role in determining success of PushGP on these problems.
 
+Since runs without uniform mutation performed worst of our three treatments each leaving out a single operator, we decided to try a treatment only using uniform mutation, with results in the OUM column of Table~\ref{genetic-operator-results}. While the success rates are lower than REG across the board, they are not significantly worse than REG on any problem. Even so, these results indicate that uniform mutation is not sufficient to produce the best results on its own, but works best in tandem with the other operators. Note that if a particular instruction disappears from the population, alternation and close mutation are not able to reintroduce it; we hypothesize that uniform mutation may provide the important ability to never get stuck in a population that cannot recover a useful lost instruction.
 
-SAY MORE HERE ABOUT THE RESULTS AND WHAT THEY MEAN; in particular, uniform mutation seems to be the most important operator, but is insufficient to produce the best results on is own. Adding both alternation and uniform close mutation seems to give the best spread, though leaving off uniform close mutation is very similar.
+The results do not indicate strongly whether uniform close mutation is particularly helpful or harmful. NCM, which does not use close mutation, gave results almost identical to REG. Another interesting comparison is NA, which uses 90\% uniform mutation and 10\% close mutation, and OUM, which uses 100\% uniform mutation. While the differences between NA and OUM are not significant, NA does better on 4 of the 5 problems. Here, close mutation may be helping change the hierarchical shape of programs, which is possible through alternation but not by uniform mutation alone. Note that we never use close mutation more than 10\% of the time, making it difficult to ascertain its importance.
 
+Finally, even though these experiments show some differences between genetic operator treatments, those differences are overall minor and rarely statistically significant. These results show that the Plush representation is robust to major differences in genetic operator probabilities, as long as uniform mutation is included in some respect. This means practitioners need not worry about finding perfect settings for genetic operators, but instead can choose any reasonable settings and expect to not be worse than another setting.
 
 
 \section{Related Representations}

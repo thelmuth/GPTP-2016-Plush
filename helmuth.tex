@@ -261,12 +261,6 @@ The  \texttt{noop\_delete\_prev\_paren\_pair}  instruction restructures the Push
 \subsection{Genetic Operators}
 \label{section:genetic-operators}
 
-Here we talk about uniform genetic operators, and how tree-based operators do bad things. Heavy citation of the ULTRA paper \citep{Spector:2013:GPTP}.
-
-We should note somewhere (maybe here?) that uniform genetic operators have allowed us to avoid many of the pitfalls of tree-based genetic operators. In particular, we have never observed bloat (or drastic drops in code size) when using these operators. Any others we should mention?
-
-------------
-
 \begin{table}[t]
 \centering
 \caption{Genetic operator parameter settings used in all of our PushGP runs.}
@@ -278,22 +272,32 @@ We should note somewhere (maybe here?) that uniform genetic operators have allow
 Parameter & Value \tabularnewline
 \noalign{\smallskip}\svhline\noalign{\smallskip}
 uniform mutation rate & 0.01 \tabularnewline
+constant tweak rate & 0.5 \\
+uniform close mutation rate & 0.1 \tabularnewline
+close increment rate & 0.2 \\
 alternation rate & 0.01 \tabularnewline
 alignment deviation & 10 \tabularnewline
-uniform close mutation rate & 0.1 \tabularnewline
 \noalign{\smallskip}\hline\noalign{\smallskip}
 \end{tabular}
 \end{table}
 
+One of the advantages of a linear genome representation is it allows us to use uniform genetic operators. This section describes in detail the genetic operators we use with Plush. For reference, Table~\ref{tableGPconstantParams} gives the parameter settings we use in our experiments using the genetic operators described below, giving an idea of reasonable settings for these parameters.
 
+\textit{Uniform mutation} modifies a single parent genome by altering each of its instructions with some probability, designated the \textit{uniform mutation rate}. If an instruction in the genome is selected to be changed, we first check whether the instruction is a constant or a Push instruction. If it is an instruction, it is simply replaced by a random instruction from the instruction set. If it is a constant, there is a \textit{constant tweak rate} probability of tweaking the constant; otherwise, it is replaced by a random instruction. The way in which a constant is tweaked depends on the type of the constant: integers and floats are perturbed by Gaussian noise with standard deviation of $1.0$, strings have a 10\% probability of replacing each character with a random character, and booleans are replaced by a random boolean.
 
-One of the advantages of a linear genome representation is it allows us to use uniform genetic operators. This section describes in detail the genetic operators we use with Plush.
+While uniform mutation can change the instructions in a genome, it cannot affect the close epigenetic markers, and therefore cannot affect the structure of a program. We therefore created a \textit{uniform close mutation} operator that takes a parent and alters its close markers. With \textit{uniform close mutation rate} probability, it either increments or decrements the close marker associated with each instruction. The close marker cannot be decreased below 0, but has no upper bound. The probability of incrementing a close marker, as opposed to decrementing it, is given by the \textit{close increment rate}; we have typically kept this number less than 0.5, since otherwise we found that close markers tended to grow more than they shrunk.
 
-The primary mutation operator we use with Plush, \textit{uniform mutation}, gives some chance to changing each instruction in the genome. 
+We use a crossover operator, \textit{alternation}, heavily inspired by the ULTRA operator, which functioned on Push programs as genomes instead of linear genomes \citep{Spector:2013:GPTP}. In alternation, both parents are traversed in parallel, copying instructions from one or ther other into the child program. Before copying each gene, alternation has a small probability, the \textit{alternation rate}, of moving the copying head to the other parent. Thus alternation copies sections of code from each parent into the child genome. In order to make it so alternation can alternate to an index not identical to the index prior to the alternation, we perturb the index with Gaussian noise, using the \textit{alignment deviation} as the standard deviation for the perturbation. Thus the copy head may jump forward or backward during an alternation, but will not likely jump far.
 
+Finally, we employ genetic operator pipelines to chain together two or more operators to create a single child. We mainly use this functionality to create a genome through alternation, and then apply uniform mutation to create the child genome.
 
+------------
 
-[TMH: We should describe the operators in as much detail as possible. Don't forget that uniform mutation can sometimes ``tweak'' constants!]
+[This section does not go into why these operators are more ``uniform'' than alternatives. Maybe it should, if it's not elsewhere.]
+
+[Here we talk about uniform genetic operators, and how tree-based operators do bad things. Heavy citation of the ULTRA paper \citep{Spector:2013:GPTP}.]
+
+[We should note somewhere (maybe here?) that uniform genetic operators have allowed us to avoid many of the pitfalls of tree-based genetic operators. In particular, we have never observed bloat (or drastic drops in code size) when using these operators. Any others we should mention?]
 
 
 % \subsection{Implementation}

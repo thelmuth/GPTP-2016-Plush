@@ -67,8 +67,7 @@ However, because of the hierarchical structure of computer programs, and the syn
 \begin{keywords}
 Uniform variation, linear genomes, Push, Plush
 \end{keywords}
-\index{keywords to your chapter}
-\index{these words should also be indexed}
+
 
 \section{Introduction}
 \label{Introduction}
@@ -326,7 +325,7 @@ Finally, we employ genetic operator pipelines to chain together two or more oper
 
 The genetic operators described here meet the requirements of uniformity described in Section~\ref{Introduction}. In particular, all three operators give uniform probability of inheriting particular genetic material in a parent: with uniform mutation and uniform close mutation, this probability is explicitly defined, and with alternation it is roughly one half. Additionally, alternation allows ``arbitrary combinations of components from each parent to appear in the child'' \cite{Spector:2013:GPTP}, even though some of these combinations may be more likely than others based on position in the parent.
 
-While a formal treatment is beyond the scope of this study, we would like to note that our experience with these uniform genetic operators has demonstrated that they avoid many of the unexpected pitfalls of tree-based genetic operators. In particular, we have never observed bloat (or drastic drops in program size) with these uniform operators.
+%While a formal treatment is beyond the scope of this study, we would like to note that our experience with these uniform genetic operators has demonstrated that they avoid many of the unexpected pitfalls of tree-based genetic operators. In particular, we have never observed bloat (or drastic drops in program size) with these uniform operators.
 
 
 % \subsection{Implementation}
@@ -609,6 +608,12 @@ Since runs without uniform mutation performed worst of our three treatments each
 The results do not indicate strongly whether uniform close mutation is particularly helpful or harmful. NCM, which does not use close mutation, gave results almost identical to REG. Another interesting comparison is NA, which uses 90\% uniform mutation and 10\% close mutation, and OUM, which uses 100\% uniform mutation. While the differences between NA and OUM are not significant, NA does better on 4 of the 5 problems. Here, close mutation may be helping change the hierarchical shape of programs, which is possible through alternation but not by uniform mutation alone. Note that we never use close mutation more than 10\% of the time, making it difficult to ascertain its importance.
 
 Finally, even though these experiments show some differences between genetic operator treatments, those differences are overall minor and rarely statistically significant. These results show that the Plush representation is robust to major differences in genetic operator probabilities, as long as uniform mutation is included in some respect. This means practitioners need not worry about finding perfect settings for genetic operators, but instead can choose any reasonable settings and expect to not be worse than another setting.
+
+\subsection{Bloat}
+
+One of the drawbacks of tree-based genetic programming that we hope to avoid by using uniform genetic operators is the bloating of program sizes without corresponding improvements in fitness. 
+
+Figure X plots the mean program size of the population during each generation of each run using the REG genetic operators.
 
 
 \section{Conclusions}

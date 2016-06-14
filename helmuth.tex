@@ -327,6 +327,15 @@ The genetic operators described here meet the requirements of uniformity describ
 
 %While a formal treatment is beyond the scope of this study, we would like to note that our experience with these uniform genetic operators has demonstrated that they avoid many of the unexpected pitfalls of tree-based genetic operators. In particular, we have never observed bloat (or drastic drops in program size) with these uniform operators.
 
+\begin{figure}[tb]
+\includegraphics[width=\textwidth]{program_sizes_3x6_relabelled}
+\caption{Mean program sizes for 100 runs each of five different software synthesis benchmark problems, showing that Plush genomes and the alternation operator do not typically lead to the sort of extreme bloat often seen when using sub-tree crossover. (``RSWN'' is an abbreviation for ``Replace Space With Newline''.)}
+\label{fig:programSizes}
+\end{figure}
+
+While a formal treatment is beyond the scope of this study, we would like to note that our experience with these uniform genetic operators has demonstrated that they avoid many of the unexpected pitfalls of tree-based genetic operators. In particular, we have never observed bloat (or drastic drops in program size) with these uniform operators. Figure~\ref{fig:programSizes}, for example, shows the mean program sizes over time for 100 runs each for five different software synthesis benchmark problems~\cite{Helmuth:2015:GECCO}. One of the problems (Count Odds) shows a slight \emph{decrease} in average program size, and one (Replace Space With Newline) shows a moderate (but not exponential) growth. The mean program sizes for the other three problems remains fairly flat.
+
+
 
 % \subsection{Implementation}
 

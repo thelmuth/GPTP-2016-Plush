@@ -1931,7 +1931,7 @@ to\z@{\kern0.55\wd0\vrule\@height0.45\ht0\hss}\box0}}}}
 \ifx\chpbibl\undefined
   \def\bibsection{\section*{\refname}\ifx\sectionmark\@gobble\else
       \markright{\refname}\fi
-      %\addcontentsline{toc}{section}{\refname}%
+      \addcontentsline{toc}{section}{\refname}%
       \mtaddtocont{\protect\contentsline{mtchap}{\refname}{\thepage}\hyperhrefextend}%
       \csname biblst@rthook\endcsname\par}
 \else

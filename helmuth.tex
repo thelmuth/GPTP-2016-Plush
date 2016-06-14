@@ -1,18 +1,63 @@
 %%%%%%%%%%%%%%%%%%%% author.tex %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
+% sample root file for your "contribution" to a contributed volume
+%
+% Use this file as a template for your own input.
+%
 %%%%%%%%%%%%%%%% Springer %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+% RECOMMENDED %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\documentclass[graybox]{svmult}
+
+% choose options for [] as required from the list
+% in the Reference Guide
+
+\usepackage{mathptmx}       % selects Times Roman as basic font
+\usepackage{helvet}         % selects Helvetica as sans-serif font
+\usepackage{courier}        % selects Courier as typewriter font
+\usepackage{type1cm}        % activate if the above 3 fonts are
+                            % not available on your system
+%
+\usepackage{makeidx}         % allows index generation
+\usepackage{graphicx}        % standard LaTeX graphics tool
+                             % when including figure files
+\usepackage{multicol}        % used for the two-column index
+\usepackage[bottom]{footmisc}% places footnotes at page bottom
+
+% see the list of further useful packages
+% in the Reference Guide
+
+\makeindex             % used for the subject index
+                       % please use the style svind.ist with
+                       % your makeindex program
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
 \title*{Linear Genomes for Structured Programs}
 % Use \titlerunning{Short Title} for an abbreviated version of
 % your contribution title if the original one is too long
 \author{Thomas Helmuth, Lee Spector, Nicholas Freitag McPhee, and Saul Shanabrook}
 % Use \authorrunning{Short Title} for an abbreviated version of
 % your contribution title if the original one is too long
-\institute{Thomas Helmuth \at Computer Science, Washington and Lee University, Lexington, Virginia USA
-\and Lee Spector \at Cognitive Science, Hampshire College, Amherst, MA USA
-\and Nicholas Freitag McPhee \at Division of Science and Mathematics, University of Minnesota, Morris, MN USA
-\and Saul Shanabrook \at Cognitive Science, Hampshire College, Amherst, MA USA}
+\institute{Thomas Helmuth \at Computer Science, Washington and Lee University, Lexington, Virginia USA,
+\email{helmutht@wlu.edu}
+\and Lee Spector \at Cognitive Science, Hampshire College, Amherst, MA USA,
+\email{lspector@hampshire.edu}
+\and Nicholas Freitag McPhee \at Division of Science and Mathematics, University of Minnesota, Morris, MN USA,
+\email{mcphee@morris.umn.edu}
+\and Saul Shanabrook \at Cognitive Science, Hampshire College, Amherst, MA USA,
+\email{s.shanabrook@gmail.com }}
 
 \maketitle
+
+%\abstract*{Each chapter should be preceded by an abstract (10--15 lines long) that summarizes the content. The abstract will appear \textit{online} at \url{www.SpringerLink.com} and be available with unrestricted access. This allows unregistered users to read the abstract as a teaser for the complete chapter. As a general rule the abstracts will not appear in the printed version of your book unless it is the style of your particular book or that of the series to which your book belongs.
+%Please use the 'starred' version of the new Springer \texttt{abstract} command for typesetting the text of the online abstracts (cf. source file of this chapter template \texttt{abstract}) and include them with the source files of your manuscript. Use the plain \texttt{abstract} command if the abstract is also to appear in the printed version of the book.}
+%
+%\abstract{Each chapter should be preceded by an abstract (10--15 lines long) that summarizes the content. The abstract will appear \textit{online} at \url{www.SpringerLink.com} and be available with unrestricted access. This allows unregistered users to read the abstract as a teaser for the complete chapter. As a general rule the abstracts will not appear in the printed version of your book unless it is the style of your particular book or that of the series to which your book belongs.\newline\indent
+%Please use the 'starred' version of the new Springer \texttt{abstract} command for typesetting the text of the online abstracts (cf. source file of this chapter template \texttt{abstract}) and include them with the source files of your manuscript. Use the plain \texttt{abstract} command if the abstract is also to appear in the printed version of the book.}
 
 \abstract{
 In most genetic programming systems, candidate solution programs themselves serve as the genetic material upon which variation operators act.
@@ -31,30 +76,30 @@ Uniform variation, linear genomes, Push, Plush
 In genetic programming, the goal is to evolve computer programs that solve specified problems, using methods inspired by biological genetics and evolutionary processes.
 One of the obvious challenges, from the beginning, has been the fact that biological genomes are linear sequences of nucleotides that can be varied uniformly, whereas computer programs generally have hierarchical structure and must satisfy syntactic constraints.
 
-What is meant by ``uniformity'' in this context? In prior work \citep{Spector:2013:GPTP} we defined uniformity in terms of two desiderata for variation operators:
+What is meant by ``uniformity'' in this context? In prior work \cite{Spector:2013:GPTP} we defined uniformity in terms of two desiderata for variation operators:
 
 \begin{itemize}
 \item ``that the probability of an inherited program component being modified during inheritance is independent of the size and shape of the parent programs beyond the component in question'' 
 \item ``that pairs of parents are combined in ways that allow arbitrary combinations of components from each parent to appear in the child.''
 \end{itemize}
 
-The field's earliest work leveraged the relative simplicity of Lisp symbolic expressions, which can express richly structured programs despite having few syntactic constraints in comparison to other common programming languages \citep{koza:book}. Symbolic expressions simplify the implementation of genetic operators that produce syntactically valid children from syntactically valid parents, using processes of subexpression replacement and exchange. However, the operators that were developed and then widely employed are decidedly nonuniform. For example, in standard mutation a single subexpression is chosen and replaced, and the chance that a particular subexpression will be chosen is inversely proportional to the size of the overall program. This violates the first uniformity desideratum. In standard crossover a single subexpression is replaced by a subexpression from the other parent; this greatly restricts the ways in which the components of the parents can be combined in children, and violates the second uniformity desideratum.
+The field's earliest work leveraged the relative simplicity of Lisp symbolic expressions, which can express richly structured programs despite having few syntactic constraints in comparison to other common programming languages \cite{koza:book}. Symbolic expressions simplify the implementation of genetic operators that produce syntactically valid children from syntactically valid parents, using processes of subexpression replacement and exchange. However, the operators that were developed and then widely employed are decidedly nonuniform. For example, in standard mutation a single subexpression is chosen and replaced, and the chance that a particular subexpression will be chosen is inversely proportional to the size of the overall program. This violates the first uniformity desideratum. In standard crossover a single subexpression is replaced by a subexpression from the other parent; this greatly restricts the ways in which the components of the parents can be combined in children, and violates the second uniformity desideratum.
 
-Why do these deviations from uniformity matter? One issue is that the same expression is more likely to survive without modification if it is embedded within a large program rather than a small program. This can bias survival toward larger and larger programs, even when fitness is not improving, leading to ``code bloat'' \citep{Luke:2006:EC:FIXED}. Another issue, related to the second uniformity desideratum, is that standard crossover does not permit complementary parts of two parents to be combined in their child, unless all of the needed parts from one parent are segregated in a single subexpression.
+Why do these deviations from uniformity matter? One issue is that the same expression is more likely to survive without modification if it is embedded within a large program rather than a small program. This can bias survival toward larger and larger programs, even when fitness is not improving, leading to ``code bloat'' \cite{Luke:2006:EC:FIXED}. Another issue, related to the second uniformity desideratum, is that standard crossover does not permit complementary parts of two parents to be combined in their child, unless all of the needed parts from one parent are segregated in a single subexpression.
 
-Several researchers have previously noted these and related issues, and attempted to address them through modification of the standard genetic operators. For example, some have developed operators that adjust the probabilities that subexpressions of different sizes will be chosen for replacement or exchange \citep{koza:book,Helmuth:2011:GECCOcomp}, while others have adjusted the number of replacements or exchanges \citep{vanbelle:2002:EuroGP:NOERROR}, or restricted exchanges to pairs of expressions with specified properties \citep{page:CSRP-98-20,poli:1998:local,poli:2000:22par}. As detailed in \citep{Spector:2013:GPTP}, although these and additional efforts have indeed improved uniformity to some extent, they are all only partial measures, which are limited in principle by the hierarchical structure of the programs that are being modified, in which some components contain other components.
+Several researchers have previously noted these and related issues, and attempted to address them through modification of the standard genetic operators. For example, some have developed operators that adjust the probabilities that subexpressions of different sizes will be chosen for replacement or exchange \cite{koza:book,Helmuth:2011:GECCOcomp}, while others have adjusted the number of replacements or exchanges \cite{vanbelle:2002:EuroGP:NOERROR}, or restricted exchanges to pairs of expressions with specified properties \cite{page:CSRP-98-20,poli:1998:local,poli:2000:22par}. As detailed in \cite{Spector:2013:GPTP}, although these and additional efforts have indeed improved uniformity to some extent, they are all only partial measures, which are limited in principle by the hierarchical structure of the programs that are being modified, in which some components contain other components.
 
-Some genetic programming systems are immune to most of the problems raised here, because they use linear program representations, to which uniform genetic operators can be straightforwardly applied \citep{journals/ijait/OlteanGDM09}. This is the same general strategy that we are pursuing in the present work, although while much of the prior work in linear genetic programming is focused on programs expressed in a low-level language with few control and data structures. Here we aim to provide uniform variation for programs in a language that can support arbitrary control and data structures and for which program structure is therefore likely to be more important. An existing framework in which linear genomes can indeed be used to evolve highly structured programs is ``grammatical evolution,'' in which the genes on linear genomes are used as indices into grammars that can express arbitrary languages \citep{ryan:1998:geepal}. While uniform genetic operators can indeed be used on these genomes, the effects that small changes to genomes have on the expressed programs are often quite large, so that uniformity at the level of genomes is unlikely to translate into uniformity at the level of programs.
+Some genetic programming systems are immune to most of the problems raised here, because they use linear program representations, to which uniform genetic operators can be straightforwardly applied \cite{journals/ijait/OlteanGDM09}. This is the same general strategy that we are pursuing in the present work, although while much of the prior work in linear genetic programming is focused on programs expressed in a low-level language with few control and data structures. Here we aim to provide uniform variation for programs in a language that can support arbitrary control and data structures and for which program structure is therefore likely to be more important. An existing framework in which linear genomes can indeed be used to evolve highly structured programs is ``grammatical evolution,'' in which the genes on linear genomes are used as indices into grammars that can express arbitrary languages \cite{ryan:1998:geepal}. While uniform genetic operators can indeed be used on these genomes, the effects that small changes to genomes have on the expressed programs are often quite large, so that uniformity at the level of genomes is unlikely to translate into uniformity at the level of programs.
 
-In earlier work, we sought to achieve greater uniformity by treating programs as linear sequences only during variation \citep{Spector:2013:GPTP}. Our ULTRA (Uniform Linear Transformation with Repair and Alternation) operator first translates hierarchically structured programs into linear sequences, with parentheses replaced by independent tokens. It then applies uniform mutation and alternation (a form of multipoint crossover) to the linear sequences. Finally, it translates the resulting linear sequences back into hierarchical programs. Because the tokens for parentheses may have become imbalanced during uniform variation, a repair step is required to rebalance them. While the prior work demonstrated that ULTRA had several desirable properties, the artifacts produced by the repair step were themselves non-uniform and biased the shape of evolving programs in peculiar ways. This nonuniformity was one motivation for the work presented here.
+In earlier work, we sought to achieve greater uniformity by treating programs as linear sequences only during variation \cite{Spector:2013:GPTP}. Our ULTRA (Uniform Linear Transformation with Repair and Alternation) operator first translates hierarchically structured programs into linear sequences, with parentheses replaced by independent tokens. It then applies uniform mutation and alternation (a form of multipoint crossover) to the linear sequences. Finally, it translates the resulting linear sequences back into hierarchical programs. Because the tokens for parentheses may have become imbalanced during uniform variation, a repair step is required to rebalance them. While the prior work demonstrated that ULTRA had several desirable properties, the artifacts produced by the repair step were themselves non-uniform and biased the shape of evolving programs in peculiar ways. This nonuniformity was one motivation for the work presented here.
 
 Another motivation for the work described below was the fact that while ULTRA supports reasonably-uniform variation of structured programs, it does nothing to produce structure where it is most likely to be useful, in the context of instructions that make use of structure, such as conditional branches or loops.
 
-The idea for the alternative approach that we present here arose when considering the problems raised above in the context of independent work that we were conducting in which ``epigenetic'' markers were added to instructions and literals in linear programs in order to turn those genes on or off \citep{LaCava:2014:GPTP, LaCava:2014:GECCOcomp, LaCava:2015:GECCO}.
+The idea for the alternative approach that we present here arose when considering the problems raised above in the context of independent work that we were conducting in which ``epigenetic'' markers were added to instructions and literals in linear programs in order to turn those genes on or off \cite{LaCava:2014:GPTP, LaCava:2014:GECCOcomp, LaCava:2015:GECCO}.
 We realized we could use similar epigenetic markers to specify the hierarchical structure for programs that are ``expressed'' from linear genomes. This allows us to use linear genomes on which we can perform uniform genetic operators, while translating the genomes into hierarchical programs only for the sake of fitness testing.
 Furthermore, we specify that opening parentheses are automatically inserted following structure-dependent instructions during translation and use epigenetic markers only to indicate where closing parentheses should occur. Thus we ensure that parenthesized, hierarchical structures appear in programs next to instructions that can make use of them and not next to instructions that cannot.
 
-We note that the use of the term ``epigenetic'' for these markers is most appropriate when they can change not only during reproduction but also while programs confront their problem environments. While we do not describe such processes here, we have used these markers in this way in the past \citep{LaCava:2015:GECCO}. In this work, we used hill climbing to modify the epigenetic markers of an individual if those modifications improve its fitness. While this effort did not produce significantly better results, using similar mutations to turn off or on genes in newly created children and allowing selection pressure to sort out the changes did produce impressively better results on 2 out of 5 problems. So, even though we do not explore changing epigenetic markers during the ``lifetimes'' of the programs in this work, these markers do enable such modifications; additionally, because of the ways that these markers are attached to instruction and literal ``genes,'' we think that the use of ``epigenetics'' is reasonable in this context.
+We note that the use of the term ``epigenetic'' for these markers is most appropriate when they can change not only during reproduction but also while programs confront their problem environments. While we do not describe such processes here, we have used these markers in this way in the past \cite{LaCava:2015:GECCO}. In this work, we used hill climbing to modify the epigenetic markers of an individual if those modifications improve its fitness. While this effort did not produce significantly better results, using similar mutations to turn off or on genes in newly created children and allowing selection pressure to sort out the changes did produce impressively better results on 2 out of 5 problems. So, even though we do not explore changing epigenetic markers during the ``lifetimes'' of the programs in this work, these markers do enable such modifications; additionally, because of the ways that these markers are attached to instruction and literal ``genes,'' we think that the use of ``epigenetics'' is reasonable in this context.
 
 In the remainder of this chapter we first provide a brief description of the Push programming language, in which the programs that we evolve in our systems are expressed. We then describe our new linear genome representation, which we call ``Plush'' (where the ``l'' is for ``linear''), in detail. This description is followed by experimental results that demonstrate the ways in which Plush facilitates program structure and the efficacy of various uniform genetic operators.
 
@@ -275,11 +320,11 @@ One of the advantages of a linear genome representation is it allows us to use u
 
 While uniform mutation can change the instructions in a genome, it cannot affect the close epigenetic markers, and therefore cannot affect the structure of a program. We therefore created a \textit{uniform close mutation} operator that takes a parent and alters its close markers. With \textit{uniform close mutation rate} probability, it either increments or decrements the close marker associated with each instruction. The close marker cannot be decreased below 0, but has no upper bound. The probability of incrementing a close marker, as opposed to decrementing it, is given by the \textit{close increment rate}; we have typically kept this number less than 0.5, since otherwise we found that close markers tended to grow more than they shrunk.
 
-We use a crossover operator, \textit{alternation}, heavily inspired by the ULTRA operator, which functioned on Push programs as genomes instead of linear genomes \citep{Spector:2013:GPTP}. In alternation, both parents are traversed in parallel, copying instructions from one or ther other into the child program. Before copying each gene, alternation has a small probability, the \textit{alternation rate}, of moving the copying head to the other parent. Thus alternation copies sections of code from each parent into the child genome. In order to make it so alternation can alternate to an index not identical to the index prior to the alternation, we perturb the index with Gaussian noise, using the \textit{alignment deviation} as the standard deviation for the perturbation. Thus the copy head may jump forward or backward during an alternation, but will not likely jump far.
+We use a crossover operator, \textit{alternation}, heavily inspired by the ULTRA operator, which functioned on Push programs as genomes instead of linear genomes \cite{Spector:2013:GPTP}. In alternation, both parents are traversed in parallel, copying instructions from one or ther other into the child program. Before copying each gene, alternation has a small probability, the \textit{alternation rate}, of moving the copying head to the other parent. Thus alternation copies sections of code from each parent into the child genome. In order to make it so alternation can alternate to an index not identical to the index prior to the alternation, we perturb the index with Gaussian noise, using the \textit{alignment deviation} as the standard deviation for the perturbation. Thus the copy head may jump forward or backward during an alternation, but will not likely jump far.
 
 Finally, we employ genetic operator pipelines to chain together two or more operators to create a single child. We mainly use this functionality to create a genome through alternation, and then apply uniform mutation to create the child genome.
 
-The genetic operators described here meet the requirements of uniformity described in Section~\ref{Introduction}. In particular, all three operators give uniform probability of inheriting particular genetic material in a parent: with uniform mutation and uniform close mutation, this probability is explicitly defined, and with alternation it is roughly one half. Additionally, alternation allows ``arbitrary combinations of components from each parent to appear in the child'' \citep{Spector:2013:GPTP}, even though some of these combinations may be more likely than others based on position in the parent.
+The genetic operators described here meet the requirements of uniformity described in Section~\ref{Introduction}. In particular, all three operators give uniform probability of inheriting particular genetic material in a parent: with uniform mutation and uniform close mutation, this probability is explicitly defined, and with alternation it is roughly one half. Additionally, alternation allows ``arbitrary combinations of components from each parent to appear in the child'' \cite{Spector:2013:GPTP}, even though some of these combinations may be more likely than others based on position in the parent.
 
 While a formal treatment is beyond the scope of this study, we would like to note that our experience with these uniform genetic operators has demonstrated that they avoid many of the unexpected pitfalls of tree-based genetic operators. In particular, we have never observed bloat (or drastic drops in program size) with these uniform operators.
 
@@ -515,7 +560,7 @@ While these results do not make a strong case for the importance of automatic co
 \section{Uniform Genetic Operators Experiment}
 
 As described in Section~\ref{section:genetic-operators}, the linear genomes of Plush allowed us to implement uniform genetic operators that don't exhibit the 
-drawbacks often associated with tree-based genetic operators. Here we explore the efficacy of each of these operators by comparing sets of runs using different combinations and probabilities of operators. We tested five different treatments consisting of different probabilities of each genetic operator being used to produce a particular child; these treatments are detailed in Table~\ref{genetic-operator-combinations}. Note that while no prior work has formally compared different settings of these operators, previous studies using Plush genomes \citep{Helmuth:2015:GECCO, Helmuth:2015:GPTP, McPhee:2015:GPTP} used the treatment REG.
+drawbacks often associated with tree-based genetic operators. Here we explore the efficacy of each of these operators by comparing sets of runs using different combinations and probabilities of operators. We tested five different treatments consisting of different probabilities of each genetic operator being used to produce a particular child; these treatments are detailed in Table~\ref{genetic-operator-combinations}. Note that while no prior work has formally compared different settings of these operators, previous studies using Plush genomes \cite{Helmuth:2015:GECCO, Helmuth:2015:GPTP, McPhee:2015:GPTP} used the treatment REG.
 
 \begin{table}[t]
 \centering
@@ -575,8 +620,9 @@ We have described a linear representation (Plush) for structured programs (in th
 \begin{acknowledgement}
 This material is based upon work supported by the National Science Foundation under Grants No. 1129139 and 1331283. Any opinions, findings, and conclusions or recommendations expressed in this publication are those of the authors and do not necessarily reflect the views of the National Science Foundation.
 \end{acknowledgement}
-%
 
+%\input{referenc}
+\bibliographystyle{abbrv}
+\bibliography{helmuth}
 
-\bibliographystyle{spbasic}
-\bibliography{gp-bibliography,helmuth}
+\end{document}

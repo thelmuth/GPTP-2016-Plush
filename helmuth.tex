@@ -118,7 +118,11 @@ Because all instructions take their arguments from appropriately typed stacks, a
 act as {\ttfamily no-op}s, instructions and literals of any types can be interleaved in arbitrary ways without risk of type errors.
 
 Like Lisp symbolic expressions, Push programs may be hierarchically
-structured with parentheses, and this structure has consequences for program execution when code-manipulation instructions are used. For example, the {\ttfamily exec\_if} instruction will execute one of the top two items on the {\ttfamily exec} stack, depending on the value on top of the {\ttfamily boolean} stack, and discard the other. If those items are parenthesized expressions then the parentheses will serve to demarcate conditional execution branches.
+structured with parentheses, and this structure has consequences for program execution when code-manipulation instructions are used. For example, the {\ttfamily exec\_if} instruction will execute one of the top two items on the {\ttfamily exec} stack, depending on the value on top of the {\ttfamily boolean} stack, and discard the other. If those items are parenthesized expressions then the parentheses will serve to demarcate conditional execution branches. For example, in the program
+\begin{verbatim}
+(arg1 exec_if (4 5 integer_add) 7)
+\end{verbatim}
+if \texttt{arg1} is \textbf{true}, \texttt{7} (as the ``else'' clause) will be removed, and the block of code \texttt{(4 5 integer\_add)} will remain on the \texttt{exec} stack. If \texttt{arg1} is \textbf{false}, the ``then'' clause \texttt{(4 5 integer\_add)} will be popped and \texttt{7} will remain on the \texttt{exec} stack.
 
 In early versions of PushGP, the parenthetic structure of programs also affected the ways that  genetic
 operators operated on programs. The genetic operators in these versions of PushGP were intentionally similar to those used in traditional, Lisp symbolic expression genetic programming systems; mutation involved replacing subexpressions with new subexpressions, while crossover involved the exchange of subexpressions across programs. This facilitated comparisons between the different program representations, and the translation of of ideas from one project to another, but it produced the same challenges for PushGP as for traditional genetic programming with respect to uniform variation.
@@ -126,7 +130,14 @@ operators operated on programs. The genetic operators in these versions of PushG
 
 \section{Plush}
 \textit{Plush}\footnote{\textbf{L}inear \textbf{Push}} \textit{genomes} provide
-an alternative representation of a Push program, and stores a program in a way that enables simple uniform genetic variations. There is a many to one mapping from Plush to Push code, as described by the translation process below.
+an alternative representation of a Push program, and stores a program in a linear sequence that enables simple uniform genetic variations. There is a many to one mapping from Plush genomes to Push programs, as described by the translation process below.
+
+One of the goals of introducing Plush genomes is to ensure that every argument taken from the \texttt{exec} stack for use by an instruction consists of a parenthesized block of code.
+In prior work, when evolving Push programs as genomes, we would often see \texttt{exec} stack manipulating instructions taking single instructions as arguments, instead of blocks of code. By ensuring that such instructions are followed by code blocks, we hope to encourage more modular programs that can make better use of \texttt{exec} stack arguments.
+
+ Typical instructions that take arguments from the \texttt{exec} stack include instructions for looping, conditional execution, and other program manipulation. For example, in the program in EAXAM, the \texttt{exec\_if} instruction takes two arguments from the \texttt{exec} stack: \texttt{(4 5 integer\_add)} and \texttt{7}. The first is a block of code, and the second is a single instruction (in this case, an integer literal).
+Note that blocks of code can contain zero or more instructions, so that the above program could be replaced with a functionally equivalent one by simply placing the \texttt{7} in parentheses, ensuring that each of \texttt{exec\_if}'s arguments is a block of code.
+
 
 
 

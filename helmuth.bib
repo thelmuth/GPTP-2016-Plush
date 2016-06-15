@@ -487,3 +487,98 @@
 		 Information Systems Ireland Ireland",
   doi-url =	"http://dx.doi.org/10.1007/BFb0055930",
 }
+
+@Article{Silva:2009:GPEM,
+  author =	"Sara Silva and Ernesto Costa",
+  title =	"Dynamic limits for bloat control in genetic
+		 programming and a review of past and current bloat
+		 theories",
+  journal =	"Genetic Programming and Evolvable Machines",
+  year = 	"2009",
+  volume =	"10",
+  number =	"2",
+  pages =	"141--179",
+  keywords =	"genetic algorithms, genetic programming, Bloat,
+		 Dynamic limits, Review, Bloat theories",
+  ISSN = 	"1389-2576",
+  doi =  	"doi:10.1007/s10710-008-9075-9",
+  abstract =	"Bloat is an excess of code growth without a
+		 corresponding improvement in fitness. This is a serious
+		 problem in Genetic Programming, often leading to the
+		 stagnation of the evolutionary process. Here we provide
+		 an extensive review of all the past and current
+		 theories regarding why bloat occurs. After more than 15
+		 years of intense research, recent work is shedding new
+		 light on what may be the real reasons for the bloat
+		 phenomenon. We then introduce Dynamic Limits, our new
+		 approach to bloat control. It implements a dynamic
+		 limit that can be raised or lowered, depending on the
+		 best solution found so far, and can be applied either
+		 to the depth or size of the programs being evolved.
+		 Four problems were used as a benchmark to study the
+		 efficiency of Dynamic Limits. The quality of the
+		 results is highly dependent on the type of limit used:
+		 depth or size. The depth variants performed very well
+		 across the set of problems studied, achieving similar
+		 fitness to the baseline technique while using
+		 significantly smaller trees. Unlike many other methods
+		 available so far, Dynamic Limits does not require
+		 specific genetic operators, modifications in fitness
+		 evaluation or different selection schemes, nor does it
+		 add any parameters to the search process. Furthermore,
+		 its implementation is simple and its efficiency does
+		 not rely on the usage of a static upper limit. The
+		 results are discussed in the context of the newest
+		 bloat theory.",
+  doi-url =	"http://dx.doi.org/10.1007/s10710-008-9075-9",
+}
+
+@PhdThesis{luke:dissertation,
+  author =	"Sean Luke",
+  title =	"Issues in Scaling Genetic Programming: Breeding
+		 Strategies, Tree Generation, and Code Bloat",
+  school =	"Department of Computer Science, University of
+		 Maryland",
+  address =	"A. V. Williams Building, University of Maryland,
+		 College Park, MD 20742 USA",
+  year = 	"2000",
+  size = 	"178 pages",
+  keywords =	"genetic algorithms, genetic programming",
+  URL =  	"http://www.cs.gmu.edu/~sean/papers/thesis2p.pdf",
+  URL =  	"http://www.cs.gmu.edu/~sean/papers/thesis2p.ps.gz",
+  abstract =	"Genetic Programming is an evolutionary computation
+		 technique which searches for those computer programs
+		 that best solve a given problem. As genetic programming
+		 is applied to increasingly difficult problems, its
+		 effectiveness is hampered by the tendency of candidate
+		 program solutions to grow in size independent of any
+		 corresponding increases in quality. This bloat in
+		 solutions slows the search process, interferes with
+		 genetic programming's searching, and ultimately
+		 consumes all available memory. The challenge for
+		 scaling up genetic programming is to find the best
+		 solutions possible before bloat puts a stop to
+		 evolution. This can be tackled either by finding better
+		 solutions more rapidly, or by taking measures to delay
+		 bloat as long as possible. This thesis discusses issues
+		 both in speeding the search process and in delaying
+		 bloat in order to scale genetic programming to tackle
+		 harder problems. It describes evolutionary computation
+		 and genetic programming, and details the application of
+		 genetic programming to cooperative robot soccer and to
+		 language induction. The thesis then compares genetic
+		 programming breeding strategies, showing the conditions
+		 under which each strategy produces better individuals
+		 with less bloating. It then analyzes the tree growth
+		 properties of the standard tree generation algorithms
+		 used, and proposes new, fast algorithms which give the
+		 user better control over tree size. Lastly, it presents
+		 evidence which directly contradicts existing bloat
+		 theories, and gives a more general theory of code
+		 growth, showing that the issue is more complicated than
+		 it first appears.",
+  notes =	"errata 1. In Algorithm 2 (p. 6), the line P<-P\\[q]
+		 should read P<-P\\[s]. 2. Figures 5.2 through 5.5 (p.
+		 38-39) are not in proper evolutionary-time order. The
+		 proper order is 5.4, 5.5, 5.2, 5.3.",
+}

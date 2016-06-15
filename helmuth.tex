@@ -617,8 +617,8 @@ Finally, even though these experiments show some differences between genetic ope
 \label{fig:programSizes}
 \end{figure}
 
-One of the drawbacks of tree-based genetic programming that we hope to avoid by using uniform genetic operators is bloat of program sizes without corresponding improvements in fitness.
-Figure~\ref{fig:programSizes} plots the mean program size of each population over time for each run using the REG genetic operators.
+Code bloat without corresponding improvement in fitness has long caused problems in genetic programming \cite{Silva:2009:GPEM, luke:dissertation}. In our experience with uniform genetic operators in Plush, we have not observed code bloat.
+Figure~\ref{fig:programSizes}, for example, plots the mean program size of each population over time for each run using the REG genetic operators.
 One of the problems (Count Odds) shows a slight \emph{decrease} in average program size, and one (Replace Space With Newline) shows moderate growth. The mean program size for the other three problems remains fairly flat. In these runs, the maximum program size limit for the Count Odds and Negative to Zero problems is 1000, and for the other three problems is 1600. None of the mean program sizes come close to approaching these limits.
 
 Of the uniform genetic operators we describe, only alternation can create a child of a different size than its parent. In fact, alternation has a slight bias toward creating smaller children than their parents, since alternation terminates upon reaching the end of the current parent's genome. This bias may partially account for the bloat control observed here, though children of alternation may also be larger than their parents. On the other hand, even operators that do not change the size of the produced children such as uniform mutation may have anti-bloat effects. For example, a bloated program will likely have more of its instructions replaced by uniform mutation than a smaller program, increasing the chances of functionality-breaking changes.

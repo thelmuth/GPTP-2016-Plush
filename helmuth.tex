@@ -121,7 +121,7 @@ Because all instructions take their arguments from appropriately typed stacks, a
 act as {\ttfamily no-op}s, instructions and literals of any types can be interleaved in arbitrary ways without risk of type errors.
 
 Like Lisp symbolic expressions, Push programs may be hierarchically
-structured with parentheses, and this structure has consequences for program execution when code-manipulation instructions are used. For example, the {\ttfamily exec\_if} instruction will execute one of the top two items on the {\ttfamily exec} stack, depending on the value on top of the {\ttfamily boolean} stack, and discard the other. If those items are parenthesized expressions then the parentheses will serve to demarcate conditional execution branches. For example, in the program
+structured with parentheses, and this structure has consequences for program execution when code-manipulation instructions are used. For example, the {\ttfamily exec\_if} instruction will execute one of the top two items on the {\ttfamily exec} stack, depending on the value on top of the {\ttfamily boolean} stack, and discard the other. If those items are parenthesized expressions then the parentheses will serve to demarcate conditional execution branches in the form of blocks of code. For example, in the program
 \begin{verbatim}
 (arg1 exec_if (4 5 integer_add) 7)
 \end{verbatim}
@@ -138,8 +138,14 @@ an alternative representation of a Push program, and stores a program in a linea
 One of the goals of introducing Plush genomes is to ensure that every argument taken from the \texttt{exec} stack for use by an instruction consists of a parenthesized block of code.
 In prior work, when evolving Push programs as genomes, we would often see \texttt{exec} stack manipulating instructions taking single instructions as arguments, instead of blocks of code. By ensuring that such instructions are followed by code blocks, we hope to encourage more modular programs that can make better use of \texttt{exec} stack arguments.
 
- Typical instructions that take arguments from the \texttt{exec} stack include instructions for looping, conditional execution, and other program manipulation. For example, in the program in Section \ref{pushgp}, the \texttt{exec\_if} instruction takes two arguments from the \texttt{exec} stack: \texttt{(4 5 integer\_add)} and \texttt{7}. The first is a block of code, and the second is a single instruction (in this case, an integer literal).
-Note that blocks of code can contain zero or more instructions, so that the above program could be replaced with a functionally equivalent one by simply placing the \texttt{7} in parentheses, ensuring that each of \texttt{exec\_if}'s arguments is a block of code.
+The many instructions that take arguments from the \texttt{exec} stack include instructions for looping, conditional execution, and other program manipulation.
+For example, the instruction
+\texttt{exec\_if} requires two blocks, one to execute if the condition is true and the other to execute if the condition is false. The instruction \texttt{exec\_do*times} needs one code block, which is executed repeatedly in a loop.
+In the program in Section \ref{pushgp}, the \texttt{exec\_if} instruction takes two arguments from the \texttt{exec} stack: \texttt{(4 5 integer\_add)} and \texttt{7}. The first is a block of code, and the second is a single instruction (in this case, an integer literal).
+Note that blocks of code can contain zero or more instructions, so that the above program could be replaced with a functionally equivalent one where each of \texttt{exec\_if}'s arguments is a block of code:
+\begin{verbatim}
+(arg1 exec_if (4 5 integer_add) (7))
+\end{verbatim}
 
 
 
@@ -166,94 +172,10 @@ Plush gene maps can optionally contain other epigenetic markers. For example, th
 
 The process of translating a linear Plush genome into a syntactically valid, hierarchical Push program (which is a tree) is for the most part a depth-first construction of that program tree. The Plush genome is traversed linearly, adding each gene map's instruction to the translated program one by one. The hierarchical structure of the resulting program depends entirely on which of its instructions take arguments from the \texttt{exec} stack. Each instruction that does not take any arguments from the \texttt{exec} stack is simply appended to the growing program, and is not followed by a code block. An instruction that takes $X$ arguments from the \texttt{exec} stack will be followed by $X$ code blocks. After such instructions, further instructions will be added inside the opened code block, and will open nested code blocks when appropriate. Instructions only indicate where the code blocks open (i.e. they insert open parentheses); they do not describe where they should close (i.e. the location of the matching close parentheses).
 
-The most recently opened code block is closed by a parenthesis when the integer associated with a gene map's \texttt{:close} marker is greater than zero. This number indicates the number of open code blocks to close. If the number is greater than the number of currently opened code blocks, all opened code blocks are closed.
+As each genes are translated from Plush into Push code, the values of the \texttt{:close} epigenetic markers determine where code blocks are closed. For every gene that is translated from Plush to Push: \textit{after} the \texttt{:instruction} token has been added to growing Push program, and \textit{after} a new block has been opened (if the instruction requires one), the \texttt{:close} marker is applied to the growing Push program. In particular, this number indicates the number of opened code blocks to close with closing parentheses. If the number is greater than the number of currently opened code blocks, all opened code blocks are closed. Note that if a code block is closed and the preceding instruction requires another code block (such as with \texttt{exec\_if}), one is immediately opened, which may be immediately closed if the \texttt{:close} marker is large enough.
 
 These \textit{automatic code blocks} ensure that the hierarchical structure of a program has semantic meaning according to its instructions. It may help to think about a language such as Python or Java, in which it makes sense to block off a chunk of code following the start of a loop, but does not make semantic (or syntactic) sense to have a block of code follow a variable assignment. While such semantically-irrelevant code blocks are syntactically valid in Push, they have no affect on the semantics of the program.
 
-
-\subsubsection{Opening blocks}
-
-Since, in the Push language, instructions that take their arguments from the \texttt{:exec} stack
-benefit from using code blocks, the Plush translation process explicitly \textit{adds} syntactically correct
-blocks after each of those instructions. For example, the instruction
-\texttt{exec\_if} requires two blocks, one to execute if the condition is true and the other to execute if the condition is false. The instruction \texttt{exec\_do*times} needs one code block, which is executed repeatedly in a loop. Many other instructions take code block arguments.
-
-% ```clojure
-%     {code\_quote 1,
-%      environment\_new 1,
-%      exec\_do*count 1,
-%      exec\_do*range 1,
-%      exec\_do*times 1,
-%      exec\_do*vector\_boolean 1,
-%      exec\_do*vector\_float 1,
-%      exec\_do*vector\_integer 1,
-%      exec\_do*vector\_string 1,
-%      exec\_do*while 1,
-%      exec\_dup 1,
-%      exec\_eq 0,
-%      exec\_if 2,
-%      exec\_k 2,
-%      exec\_pop 1,
-%      exec\_rot 3,
-%      exec\_s 3,
-%      exec\_shove 1,
-%      exec\_string\_iterate 1,
-%      exec\_swap 2,
-%      exec\_when 1,
-%      exec\_while 1,
-%      exec\_y 1,
-%      exec\_yank 0,
-%      exec\_yankdup 0,
-%      noop\_delete\_prev\_paren\_pair 0,
-%      noop\_open\_paren 1,
-%      print\_exec 1,
-%      return\_fromexec 1,
-%      zip\_append\_child\_fromexec 1,
-%      zip\_fromexec 1,
-%      zip\_insert\_child\_fromexec 1,
-%      zip\_insert\_left\_fromexec 1,
-%      zip\_insert\_right\_fromexec 1,
-%      zip\_replace\_fromexec 1}
-% ```
-
-As a genome is translated, a ``block stack'' is used to keep track of parenthesized blocks ``promised'' to genes translated earlier in the process.
-When one of these instructions is encoded by a Plush gene, a new
-parenthesized branch should be begun in the unfolding Push program, and one or
-more \textit{future} parenthesized blocks should also be added to the block stack if the instruction requires two or more code blocks.
-When a translated instruction opens one block, subsequent translated instructions will be added to the Push program within that block until it is explicitly \textit{closed} (see below). Additionally, a token should be pushed to the block stack to indicate that a code block is open.
-
-When an instruction ``wants'' more than one block, subsequent tokens will be added to the Push program within the \textit{first} block until it is explicitly closed, and then immediately a second block will be opened again, and so on until the \textit{block stack} has been emptied. When an instruction wanting more than one block is translated, tokens should be pushed onto the \textit{block stack} that indicate that one (the last) should be closed, and then more tokens for each of the additional blocks to close and reopen new blocks.
-
-%Whenever any gene is translated in which the instruction ``wants'' one or more blocks to open, a new block is opened \textit{immediately} in the resulting Push program.
-
-There is a special instruction token, \texttt{noop\_open\_paren}, which immediately opens a new branch but writes no instruction to the Push program.
-
-No parenthesized branch is \textit{ever} opened in the Push program unless
-
-\begin{itemize}
-
-\item the encoded instruction takes one or more code block arguments from Push's \texttt{exec} stack
-\item the instruction is \texttt{noop\_open\_paren}
-
-\end{itemize}
-
-\subsubsection{Closing blocks}
-
-As each gene is translated from Plush into Push code, the value of the \texttt{:close} epigenetic marker has an important effect on the resulting Push program's structure. For every gene that is translated from Plush to Push: \textit{after} the \texttt{:instruction} token has been added to growing Push program, and \textit{after} a single new branch has been opened (if the instruction wants one), and \textit{after} the suitable number of items have been pushed to the block stack, the \texttt{:close} marker is applied to the growing Push program.
-
-If the \texttt{:close} marker's value is 0, there is no effect. The next Plush gene will add its \texttt{:instruction} token immediately following the preceding instruction.
-If the \texttt{:close} gene is a positive integer, and there are \textit{no items} on the block stack, there is no effect. Again, the next Plush gene will add its \texttt{:instruction} token immediately following the preceding instruction.
-If the \texttt{:close} gene is a positive integer and there are one or more items on the block stack, some of the currently open blocks will be closed, up that integer number.
-
-\begin{itemize}
-
-\item If what is popped from the block stack is a \texttt{close} token, then the current block is closed. Regardless of the way the algorithm has been implemented, this means that the next Push item added to the program will be appended not inside the closed block, but as its (following) sibling.
-\item If what is popped is a \texttt{close-and-open} token, then the current block is closed, and a new one is immediately opened. This means that the next Push item added to the program will be not be appended inside the closed block, but as its \textit{cousin}.
-\end{itemize}
-
-If the \texttt{:close} gene is greater than one, and there are sufficient items on the block stack, multiple blocks are closed (and potentially immediately re-opened) as indicated by the \texttt{:close} gene value before proceeding to the next gene map.
-If the \texttt{:close} gene value is larger than the size of the block stack, then the stack is exhausted and all blocks in the Push program will be closed (for the time being).
-Finally, if the translation process reaches the end of the Plush genome and one or more items remain on the block stack, those items should be closed by the same process: that is, \texttt{close-and-open} tokens should produce new (empty) blocks at the end of the translated program.
 
 \subsection{Special genes}
 \label{special-instructions}
@@ -262,10 +184,10 @@ The \texttt{:silent} epigenetic marker and two special instructions also affect 
 
 \begin{itemize}
 \item
-A Plush gene map with a \texttt{:silent} marker set to \texttt{true} should not add instructions to the growing Push program and should not affect the translation process (either through adding things to the block stack or closing blocks). Such genes have been ``silenced.''
+A Plush gene map with a \texttt{:silent} marker set to \texttt{true} is completely ignored and does not affect the growing Push program. Such genes have been ``silenced.''
 
 \item
-The  \texttt{noop\_open\_paren} instruction immediately opens a new block in the Push program and pushes a new \texttt{close} token onto the block stack, but does not add any instructions to the program.
+The  \texttt{noop\_open\_paren} instruction immediately opens a new code block but adds no instruction to the Push program. No parenthesized branch is \textit{ever} opened in the Push program unless the instruction takes one or more arguments from Push's \texttt{exec} stack or the instruction is \texttt{noop\_open\_paren}.
 
 \item
 The  \texttt{noop\_delete\_prev\_paren\_pair}  instruction restructures the Push program \textit{without affecting the translation state in any other way}: it searches through the Push program until it finds the last block closed in translation, and ``lifts'' the contents of that block to the level of its parent in the program. For example, if the Push program is \texttt{[1 2 (3 4) 5 (6 *)]} (with the asterisk indicating where the next item would be added, inside a currently unclosed block), the result of applying this transformation would be \texttt{[1 2 3 4 5 (6 *)]}.

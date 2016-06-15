@@ -153,22 +153,14 @@ Note that blocks of code can contain zero or more instructions, so that the abov
 % Another advantage of moving to linear Plush genomes instead of traditional tree genomes or hierarchical Push programs is that it enables simple use of uniform genetic operators. The uniform genetic operators implemented in Clojush are inspired by the operator ULTRA, which was designed for Push programs, requiring them to be translated into a linear form and back \cite{Spector:2013:GPTP}. The main crossover operator, \textit{alternation}, traverses two parents in parallel while copying instructions from one parent or the other to the child. While traversing the parents, copying can jump from one parent to the other with probability specified by the \textit{alternation rate} parameter. When alternating between parents, the index at which to continue copying may be offset backward or forward some amount based on a random sample from a normal distribution with mean 0 and standard deviation set by the \textit{alignment deviation} parameter. We also use a \textit{uniform mutation} operator that traverses a parent and with some probability replaces each instruction with a random one. In order to manipulate the locations of closing parentheses, we include a \textit{uniform close mutation} operator that may increment or decrement the close epigenetic marker of any given instruction. Finally, we allow genetic operator pipelines that combine multiple operators; for example, we often use alternation followed by uniform mutation, which closely resembles ULTRA \cite{Spector:2013:GPTP}.
 
 \subsection{Structure}
-Plush genomes are linear sequences of \textit{gene maps}, each of which contain (at a minimum):
-\begin{itemize}
-  \item An \texttt{:instruction}
-  \item A \texttt{:close} count
-\end{itemize}
+Plush genomes are linear sequences of \textit{gene maps}, each of which contains, at minimum, an instruction and an epigenetic \textit{close count} marker used to determine the placement of parentheses during translation.
 For example, below is a very simple Plush genome that encodes the Push program \texttt{(1 2 integer\_add)}:
-
 \begin{verbatim}
 [ {:instruction 1, :close 0}
-  {:instruction 2, :close 1}
+  {:instruction 2, :close 0}
   {:instruction integer_add, :close 0} ]
 \end{verbatim}
-
-Plush gene maps can optionally contain other values. For example, the
-epigenetic marker \texttt{:silent} contains a boolean that indicates whether the containing gene should be ignored when
-translating from the genome to the program. We have not yet added other epigenetic markers to Plush, but could imagine others being useful.
+Plush gene maps can optionally contain other epigenetic markers. For example, the \texttt{:silent} marker contains a boolean that indicates whether the instruction should be included in the translated program. We have not yet added other epigenetic markers to Plush, but could imagine others being useful.
 
 \subsection{Translation}
 

@@ -25,6 +25,10 @@
 \usepackage{multicol}        % used for the two-column index
 \usepackage[bottom]{footmisc}% places footnotes at page bottom
 
+
+% OUR PACKAGES:
+\usepackage{listings}
+
 % see the list of further useful packages
 % in the Reference Guide
 
@@ -106,8 +110,7 @@ In the remainder of this chapter we first provide a brief description of Push th
 
 
 \section{Push and PushGP}
-%% copied from http://faculty.hampshire.edu/lspector/pubs/spector-gptp-2013-preprint-erratum.pdf
-%% So I guess we could quote the whole thing?
+\label{pushgp}
 
 The Push programming language was developed specifically to serve as the target language for program evolution in genetic programming and related program synthesis methods
 (Spector, 2001; Spector and Robinson, 2002; Spector et al, 2005). Push is a postfix, stack-based language, which is similar in some respects to others that have been used for genetic programming (Perkis, 1994). 
@@ -135,7 +138,7 @@ an alternative representation of a Push program, and stores a program in a linea
 One of the goals of introducing Plush genomes is to ensure that every argument taken from the \texttt{exec} stack for use by an instruction consists of a parenthesized block of code.
 In prior work, when evolving Push programs as genomes, we would often see \texttt{exec} stack manipulating instructions taking single instructions as arguments, instead of blocks of code. By ensuring that such instructions are followed by code blocks, we hope to encourage more modular programs that can make better use of \texttt{exec} stack arguments.
 
- Typical instructions that take arguments from the \texttt{exec} stack include instructions for looping, conditional execution, and other program manipulation. For example, in the program in EAXAM, the \texttt{exec\_if} instruction takes two arguments from the \texttt{exec} stack: \texttt{(4 5 integer\_add)} and \texttt{7}. The first is a block of code, and the second is a single instruction (in this case, an integer literal).
+ Typical instructions that take arguments from the \texttt{exec} stack include instructions for looping, conditional execution, and other program manipulation. For example, in the program in Section \ref{pushgp}, the \texttt{exec\_if} instruction takes two arguments from the \texttt{exec} stack: \texttt{(4 5 integer\_add)} and \texttt{7}. The first is a block of code, and the second is a single instruction (in this case, an integer literal).
 Note that blocks of code can contain zero or more instructions, so that the above program could be replaced with a functionally equivalent one by simply placing the \texttt{7} in parentheses, ensuring that each of \texttt{exec\_if}'s arguments is a block of code.
 
 

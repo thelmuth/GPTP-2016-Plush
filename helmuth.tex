@@ -121,14 +121,14 @@ Because all instructions take their arguments from appropriately typed stacks, a
 act as {\ttfamily no-op}s, instructions and literals of any types can be interleaved in arbitrary ways without risk of type errors.
 
 Like Lisp symbolic expressions, Push programs may be hierarchically
-structured with parentheses, and this structure has consequences for program execution when code-manipulation instructions are used. For example, the {\ttfamily exec\_if} instruction will execute one of the top two items on the {\ttfamily exec} stack, depending on the value on top of the {\ttfamily boolean} stack, and discard the other. If those items are parenthesized expressions then the parentheses will serve to demarcate conditional execution branches in the form of blocks of code. For example, in the program
+structured with parentheses, and this structure has consequences for program execution when code-manipulation instructions are used. Unlike symbolic expressions, parenthesized code blocks may appear anywhere in a Push program, and their presence or absence does not change the syntactic validity of the program. For example, the {\ttfamily exec\_if} instruction will execute one of the top two items on the {\ttfamily exec} stack, depending on the value on top of the {\ttfamily boolean} stack, and discard the other. Those items serve as the conditional execution branches of the if statement, and either may be a single instruction or a code block containing any number of grouped instructions. For example, in the program:
 \begin{verbatim}
-(arg1 exec_if (4 5 integer_add) 7)
+(arg1 exec_if (4 5 integer_add) 7),
 \end{verbatim}
-if \texttt{arg1} is \textbf{true}, \texttt{7} (as the ``else'' clause) will be removed, and the block of code \texttt{(4 5 integer\_add)} will remain on the \texttt{exec} stack. If \texttt{arg1} is \textbf{false}, the ``then'' clause \texttt{(4 5 integer\_add)} will be popped and \texttt{7} will remain on the \texttt{exec} stack.
+if \texttt{arg1} is \textit{true}, \texttt{7} (as the ``else'' clause) will be removed, and the block of code \texttt{(4 5 integer\_add)} will remain on the \texttt{exec} stack. If \texttt{arg1} is \textit{false}, the ``then'' clause \texttt{(4 5 integer\_add)} will be popped and \texttt{7} will remain on the \texttt{exec} stack.
 
 In early versions of PushGP, the parenthetic structure of programs also affected the ways that  genetic
-operators operated on programs. The genetic operators in these versions of PushGP were intentionally similar to those used in traditional, Lisp symbolic expression genetic programming systems; mutation involved replacing subexpressions with new subexpressions, while crossover involved the exchange of subexpressions across programs. This facilitated comparisons between the different program representations, and the translation of ideas from one project to another, but it produced the same challenges for PushGP, as for traditional genetic programming, with respect to uniform variation.
+operators operated on programs. The genetic operators in these versions of PushGP were intentionally similar to those used in traditional, Lisp symbolic expression genetic programming systems; mutation involved replacing subexpressions with new subexpressions, while crossover involved the exchange of subexpressions across programs. This facilitated comparisons between the different program representations, and the translation of ideas from one project to another. But, these subtree-based operators lacked uniformity for the same reasons traditional tree-based operators do.
 
 
 \section{Plush}

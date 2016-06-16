@@ -65,11 +65,11 @@
 
 \abstract{
 In most genetic programming systems, candidate solution programs themselves serve as genome upon which variation operators act.
-However, because of the hierarchical structure of computer programs and the syntactic constraints that they must obey, it is difficult to implement variation operators that affect different parts of programs with uniform probability. This can have detrimental effects on evolutionary search. In prior work, structured programs were linearized prior to variation in order to facilitate uniform variation. However, this necessitated syntactic repair after variation, which reintroduced non-uniformities. In this chapter we describe a new approach that uses linear genomes, from which structured programs are ``expressed'' only for the purpose of fitness testing. We present the new approach in detail and show how it facilitates both uniform variation and the evolution of programs with meaningful structure.
+However, because of the hierarchical structure of computer programs and the syntactic constraints that they must obey, it is difficult to implement variation operators that affect different parts of programs with uniform probability. This lack of uniformity can have detrimental effects on evolutionary search, such as increases in code bloat. In prior work, structured programs were linearized prior to variation in order to facilitate uniform variation. However, this necessitated syntactic repair after variation, which reintroduced non-uniformities. In this chapter we describe a new approach that uses linear genomes that are translated into hierarchical programs for execution. We present the new approach in detail and show how it facilitates both uniform variation and the evolution of programs with meaningful structure.
 }
 
 \begin{keywords}
-Uniform variation, linear genomes, Push, Plush
+uniform variation, linear genomes, Push, Plush
 \end{keywords}
 
 

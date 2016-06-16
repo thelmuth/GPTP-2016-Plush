@@ -467,7 +467,7 @@ We compare Plush having automatic parentheses on and off using five general prog
 \begin{table}[t]
 \centering
 \caption{
-Number of succesful runs out of 100. To be successful, a program has to perfectly pass all cases in the training set as well as an unseen test set.
+Number of succesful runs out of 100. To be successful, a program has to perfectly pass all cases in the training set as well as an unseen test set. ``Auto-Parens Off'' is the version of the system where the locations of parentheses must be determined by evolution, instead of automatically.
 }
 \label{no-auto-parens-experiment}       % Give a unique label
 %
@@ -498,6 +498,12 @@ While these results do not make a strong case for the importance of automatic co
 As described in Section~\ref{section:genetic-operators}, the linear genomes of Plush allowed us to implement uniform genetic operators that don't exhibit the 
 drawbacks often associated with tree-based genetic operators. Here we explore the efficacy of each of these operators by comparing sets of runs using different combinations and probabilities of operators. We tested five different treatments consisting of different probabilities of each genetic operator; these treatments are detailed in Table~\ref{genetic-operator-combinations}. Note that while no prior work has formally compared different settings of these operators, previous studies using Plush genomes \cite{Helmuth:2015:GECCO, Helmuth:2015:GPTP, McPhee:2015:GPTP} used the treatment REG.
 
+We conducted trials with 100 GP runs using each treatment on five general program synthesis benchmark problems; again, see \cite{Helmuth:2015:GECCO} for details of these problems. We present the results of these tests in Table~\ref{genetic-operator-results}.
+
+While all treatments lead to relatively similar results, the treatment that performed most differently from the others is NUM (No Uniform Mutation). This treatment primarily uses alternation, with a small percentage of uniform close mutation operators. NUM had much lower success rates on all problems compared to REG, with a chi-squared significance test (with Holm correction) indicating significant differences at the 0.05 level on Replace Space With Newline, Negative To Zero, and X-Word Lines. This result indicates that uniform mutation has the largest role in determining success of PushGP on these problems.
+
+Since runs without uniform mutation performed worst of our three treatments each leaving out a single operator, we decided to try a treatment only using uniform mutation, with results in the OUM column of Table~\ref{genetic-operator-results}; note that this treatment is very similar to NA in operator probabilities. While the success rates are lower than REG across the board, they are not significantly worse than REG on any problem. Even so, these results indicate that uniform mutation is not sufficient to produce the best results on its own, but works best in tandem with the other operators. Note that if a particular instruction disappears from the population, alternation and close mutation are not able to reintroduce it; we hypothesize that uniform mutation may provide the important ability to never get stuck in a population that cannot recover a useful lost instruction. Additionally, uniform mutation allows evolution to perform local search by changing small numbers of instructions, the importance of which has recently been noted \cite{Trujillo:2016:GPTP}.
+
 \begin{table}[t]
 \centering
 \caption{The probabilities of using each genetic operator to create a child for the five different treatments used in our genetic operator experiments. The operators, listed by their abreviations, are:
@@ -521,26 +527,20 @@ OUM & Onlt Uni. Mut. &  0 &  1.0 &  0 &  0  \\
 
 \begin{table}[t]
 \centering
+\caption{Number of succesful runs out of 100 trials for different genetic operator treatments on five program synthesis problems; see Table~\ref{genetic-operator-combinations} for treatment details. To be successful, a program has to perfectly pass all cases in the training set as well as an unseen test set. }
 \label{genetic-operator-results}
-\caption{Number of succesful runs out of 100 trials for different genetic operator treatments on five program synthesis problems; see Table~\ref{genetic-operator-combinations} for treatment details. To be successful, a program has to perfectly pass all cases in the training set as well as an unseen test set. [DO WE WANT TO MOVE THE NA COLUMN SECOND TO LAST?]}
 \begin{tabular}{l r r r r r}
 \hline\noalign{\smallskip}
-Problem                    & REG & NA & NCM & NUM & OUM \\
+Problem                    & REG & NCM & NUM & NA & OUM \\
 \noalign{\smallskip}\svhline\noalign{\smallskip}
-Replace Space With Newline &  51 & 55 &  50 &  24 &  41 \\
-Syllables                  &  18 &  9 &  20 &   7 &   7 \\
-Negative To Zero           &  45 & 46 &  41 &  11 &  40 \\
-X-Word Lines               &   8 &  1 &  12 &   0 &   1 \\
-Count Odds                 &   8 &  6 &   5 &   0 &   1 \\
+Replace Space With Newline &  51 &  50 &  24 & 55 &  41 \\
+Syllables                  &  18 &  20 &   7 &  9 &   7 \\
+Negative To Zero           &  45 &  41 &  11 & 46 &  40 \\
+X-Word Lines               &   8 &  12 &   0 &  1 &   1 \\
+Count Odds                 &   8 &   5 &   0 &  6 &   1 \\
 \noalign{\smallskip}\hline\noalign{\smallskip}
 \end{tabular}
 \end{table}
-
-We conducted trials with 100 GP runs using each treatment on five general program synthesis benchmark problems; again, see \cite{Helmuth:2015:GECCO} for details of these problems. We present the results of these tests in Table~\ref{genetic-operator-results}.
-
-While all treatments lead to relatively similar results, the treatment that performed most differently from the others is NUM (No Uniform Mutation). This treatment primarily uses alternation, with a small percentage of uniform close mutation operators. NUM had much lower success rates on all problems compared to REG, with a chi-squared significance test (with Holm correction) indicating significant differences at the 0.05 level on Replace Space With Newline, Negative To Zero, and X-Word Lines. This result indicates that uniform mutation has the largest role in determining success of PushGP on these problems.
-
-Since runs without uniform mutation performed worst of our three treatments each leaving out a single operator, we decided to try a treatment only using uniform mutation, with results in the OUM column of Table~\ref{genetic-operator-results}. While the success rates are lower than REG across the board, they are not significantly worse than REG on any problem. Even so, these results indicate that uniform mutation is not sufficient to produce the best results on its own, but works best in tandem with the other operators. Note that if a particular instruction disappears from the population, alternation and close mutation are not able to reintroduce it; we hypothesize that uniform mutation may provide the important ability to never get stuck in a population that cannot recover a useful lost instruction.
 
 The results do not indicate strongly whether uniform close mutation is particularly helpful or harmful. NCM, which does not use close mutation, gave results almost identical to REG. Another interesting comparison is NA, which uses 90\% uniform mutation and 10\% close mutation, and OUM, which uses 100\% uniform mutation. While the differences between NA and OUM are not significant, NA does better on 4 of the 5 problems. Here, close mutation may be helping change the hierarchical shape of programs, which is possible through alternation but not by uniform mutation alone. Note that we never use close mutation more than 10\% of the time, making it difficult to ascertain its importance.
 
@@ -550,7 +550,7 @@ Finally, even though these experiments show some differences between genetic ope
 
 \begin{figure}[tb]
 \includegraphics[width=\textwidth]{program_sizes_3x6_relabelled}
-\caption{Mean program sizes each generation for 100 runs each of five different software synthesis benchmark problems. ``RSWN'' is an abbreviation for ``Replace Space With Newline''. Note that the max}
+\caption{Mean program sizes each generation for 100 runs each of five different software synthesis benchmark problems. Each run is plotted as a distinct line. ``RSWN'' is an abbreviation for ``Replace Space With Newline''.}
 \label{fig:programSizes}
 \end{figure}
 
@@ -558,7 +558,7 @@ Code bloat without corresponding improvement in fitness has long caused problems
 Figure~\ref{fig:programSizes}, for example, plots the mean program size of each population over time for each run using the REG genetic operators.
 One of the problems (Count Odds) shows a slight \emph{decrease} in average program size, and one (Replace Space With Newline) shows moderate growth. The mean program size for the other three problems remains fairly flat. In these runs, the maximum program size limit for the Count Odds and Negative to Zero problems is 1000, and for the other three problems is 1600. None of the mean program sizes come close to approaching these limits.
 
-Of the uniform genetic operators we describe, only alternation can create a child of a different size than its parent. In fact, alternation has a slight bias toward creating smaller children than their parents, since alternation terminates upon reaching the end of the current parent's genome. This bias may partially account for the bloat control observed here, though children of alternation may also be larger than their parents. On the other hand, even operators that do not change the size of the produced children such as uniform mutation may have anti-bloat effects. For example, a bloated program will likely have more of its instructions replaced by uniform mutation than a smaller program, increasing the chances of functionality-breaking changes.
+Of the uniform genetic operators we describe, only alternation can create a child of a different size than its parent. In fact, alternation has a slight bias toward creating smaller children than their parents, since alternation terminates upon reaching the end of the current parent's genome. This bias may partially account for the bloat control observed here, though children of alternation may also be larger than their parents. On the other hand, even operators that do not change the size of the produced children such as uniform mutation may have anti-bloat effects. For example, a bloated program will likely have more of its instructions replaced by uniform mutation than a smaller program, increasing the chances of changes that break the functionality of the parent.
 
 
 %While a formal treatment is beyond the scope of this study, we would like to note that our experience with these uniform genetic operators has demonstrated that they avoid many of the unexpected pitfalls of tree-based genetic operators. In particular, we have never observed bloat (or drastic drops in program size) with these uniform operators. Figure~\ref{fig:programSizes}, for example, shows the mean program sizes over time for 100 runs each for five different software synthesis benchmark problems~\cite{Helmuth:2015:GECCO}. One of the problems (Count Odds) shows a slight \emph{decrease} in average program size, and one (Replace Space With Newline) shows a moderate (but not exponential) growth. The mean program sizes for the other three problems remains fairly flat.
